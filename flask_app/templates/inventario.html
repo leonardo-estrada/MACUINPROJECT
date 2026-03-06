@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Almacén</h2>
+    <button class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva Autoparte</button>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>SKU</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Stock Actual</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MAC-BTR-001</td>
+                        <td>Batería 12V LTH</td>
+                        <td>Eléctrico</td>
+                        <td>45</td>
+                        <td><span class="badge bg-success">Óptimo</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary">Editar</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>MAC-FLT-089</td>
+                        <td>Filtro de Aire Deportivo</td>
+                        <td>Motor</td>
+                        <td>2</td>
+                        <td><span class="badge bg-danger">Crítico</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary">Editar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

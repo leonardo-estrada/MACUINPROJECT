@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  macuin-interno:
+    build: 
+      context: ./flask_app
+      dockerfile: Dockerfile
+    container_name: macuin_flask_interno
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./flask_app:/app
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0  # <--- ESTA ES LA LÍNEA MÁGICA
+
+  # Aquí en el futuro agregaremos el servicio de Laravel
+  # macuin-externo:
+  #   build: ./laravel_app
+  #   ports:
+  #     - "8000:8000"
+  
+  # Aquí en el futuro agregaremos la API Central
+  # macuin-api:
+  #   ...
