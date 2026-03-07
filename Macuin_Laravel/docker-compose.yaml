@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  cliente_externo_laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: macuin_laravel
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html 
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
