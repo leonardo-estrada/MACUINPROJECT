@@ -16,7 +16,11 @@ def inventario():
 
 @app.route('/pedidos')
 def pedidos():
-    return render_template('pedidos.html')
+    return render_template('GPedidos.html')
+
+@app.route('/reportes')
+def reportes():
+    return render_template('reportes.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
