@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualizar Stock - MACUIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="CSS/StockE.css" />
+</head>
+<body>
+    <div class="modal-container">
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title">Actualizar Stock</h2>
+                <p class="modal-subtitle">Filtro de Aceite Premium</p>
+            </div>
+            <button class="btn-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="current-stock">
+                <span class="stock-label">Stock Actual</span>
+                <span class="stock-value">45 unidades</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tipo de Movimiento <span class="required">*</span></label>
+                <div class="movement-options">
+                    <div class="movement-option selected">
+                        <div class="option-icon entrada">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="plus-icon">+</span>
+                        </div>
+                        <span class="option-title">Entrada de Stock</span>
+                        <span class="option-desc">Agregar inventario</span>
+                    </div>
+                    <a href="StockS.html" class="movement-option">
+    <div class="option-icon salida">
+        <i class="fas fa-chart-line down"></i>
+        <span class="minus-icon">−</span>
+    </div>
+    <span class="option-title">Salida de Stock</span>
+    <span class="option-desc">Retirar inventario</span>
+</a>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cantidad <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <input type="number" placeholder="Ingrese la cantidad" min="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Motivo <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <input type="text" placeholder="Ejemplo: Compra a proveedor, Venta al cliente, Devolución, etc.">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="window.location.href='inventario.html'">
+        Cancelar
+    </button>
+
+    <button class="btn btn-primary" onclick="window.location.href='inventario.html'">
+        <i class="fas fa-sync-alt"></i> Actualizar Stock
+    </button>
+</div>
+    </div>
+</body>
+</html>

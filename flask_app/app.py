@@ -8,7 +8,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('autopartes.html')
 
 @app.route('/inventario')
 def inventario():

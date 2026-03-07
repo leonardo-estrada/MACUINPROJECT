@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña - MACUIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="CSS/Password.css" />
+</head>
+<body>
+    <div class="auth-container">
+         <div class="logo-section">
+      <img src="IMG/logo2.png" alt="Logo MACUIN" class="logo-img">
+    
+      <p>Sistema de Gestión de Autopartes</p>
+    </div>
+        <div class="auth-card">
+            <div class="stepper">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Correo</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Verificación</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Nueva clave</span>
+                </div>
+            </div>
+            <div class="recovery-icon"><i class="fas fa-key"></i></div>
+            <h2 class="auth-title-small">¿Olvidaste tu contraseña?</h2>
+            <p class="auth-description">Ingresa tu correo registrado y te enviaremos un enlace para restablecerla.</p>
+            <form class="auth-form">
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" placeholder="Correo" required>
+                    </div>
+                </div>
+                <a href="Passowrd2.html" class="btn btn-primary btn-full">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar enlace de recuperación
+                </a>
+            </form>
+            <a href="login.html" class="back-link"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
+        </div>
+        <p class="support-text">¿Necesitas ayuda? Contacta a soporte en <a href="mailto:soporte@macuin.com">soporte@macuin.com</a></p>
+    </div>
+</body>
+</html>
