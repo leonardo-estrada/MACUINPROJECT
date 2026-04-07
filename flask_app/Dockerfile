@@ -19,7 +19,7 @@ RUN pip install --upgrade pip && \
 COPY . /app/
 
 # Exponemos el puerto en el que correrá Flask
-EXPOSE 5000
+EXPOSE 5002
 
 # Comando para ejecutar la aplicación
 CMD ["flask", "run", "--host=0.0.0.0"]

@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - MACUIN</title>
-  <link rel="stylesheet" href="CSS/login.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/login.css') }}" />
 </head>
 <body>
   <div class="login-page">
     <div class="logo-section">
-      <img src="IMG/logo2.png" alt="Logo MACUIN" class="logo-img">
+      <img src="{{ url_for('static', filename='IMG/logo2.png') }}" alt="Logo MACUIN" class="logo-img">
     
       <p>Sistema de Gestión de Autopartes</p>
     </div>
@@ -53,10 +53,10 @@
             <span>Recordarme</span>
           </label>
 
-          <a href="Passowrd.html" class="forgot-password">¿Olvidó su contraseña?</a>
+          <a href="{{ url_for('passwd1') }}" class="forgot-password">¿Olvidó su contraseña?</a>
         </div>
 
-        <a href="autopartes.html" class="login-btn">
+        <a href="{{ url_for('dashboard') }}" class="login-btn">
   <span class="btn-icon">
     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <line x1="5" y1="12" x2="19" y2="12"/>

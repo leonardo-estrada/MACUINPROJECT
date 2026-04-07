@@ -23,7 +23,7 @@
             <p class="text-blue-700 font-bold text-2xl mb-3">$15.99</p>
             <p class="text-green-600 text-sm font-medium mb-4"><i class="fa-regular fa-clock"></i> Disponibilidad:<br><span class="ml-4">45 unidades</span></p>
         </div>
-        <a href="{{ route('checkout') }}" class="block text-center w-full bg-macuin hover:bg-red-900 text-white font-medium py-2 rounded-lg transition">
+        <a href="{{ route('carrito') }}" class="block text-center w-full bg-macuin hover:bg-red-900 text-white font-medium py-2 rounded-lg transition">
             + Agregar al Pedido
         </a>
     </div>

@@ -6,28 +6,28 @@
     <title>Gestión de Pedidos - MACUIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="CSS/GPedidos.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/GPedidos.css') }}" />
 </head>
 <body>
     <header class="main-header">
         <div class="header-left">
 
             <div class="logo-small">
-      <img src="IMG/logo3.png" alt="Logo MACUIN" class="logo-img">
+      <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img">
     </div>
             <span class="header-title">Catálogo de Autopartes</span>
         </div>
 
         <nav class="header-nav">
-            <a href="inventario.html" class="nav-item "><i class="fas fa-box"></i> Inventario</a>
+            <a href="{{ url_for('inventario') }}" class="nav-item "><i class="fas fa-box"></i> Inventario</a>
             <a href="#" class="nav-item active"><i class="fas fa-shopping-cart"></i> Pedidos</a>
-            <a href="reportes.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reportes</a>
-            <a href="#" class="nav-item"><i class="fas fa-users"></i> Personal Interno</a>
+            <a href="{{ url_for('reportes') }}" class="nav-item"><i class="fas fa-chart-bar"></i> Reportes</a>
+            <a href="{{ url_for('empleados') }}" class="nav-item"><i class="fas fa-users"></i> Personal Interno</a>
             <a href="#" class="nav-item"><i class="fas fa-user-shield"></i> Admin</a>
         </nav>
 
         <div class="header-right">
-    <a href="autopartes.html">
+    <a href="{{ url_for('dashboard') }}">
         <button class="btn-logout">
             <i class="fas fa-sign-out-alt"></i>
         </button>

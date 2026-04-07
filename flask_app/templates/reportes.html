@@ -606,21 +606,21 @@ background: rgba(255,255,255,0.1);
         <div class="header-left">
 
             <div class="logo-small">
-      <img src="IMG/logo3.png" alt="Logo MACUIN" class="logo-img">
+      <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img">
     </div>
             <span class="header-title">Catálogo de Autopartes</span>
         </div>
 
         <nav class="header-nav">
-            <a href="inventario.html" class="nav-item"><i class="fas fa-box"></i> Inventario</a>
-            <a href="GPedidos.html" class="nav-item"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+            <a href="{{ url_for('inventario') }}" class="nav-item"><i class="fas fa-box"></i> Inventario</a>
+            <a href="{{ url_for('pedidos') }}" class="nav-item"><i class="fas fa-shopping-cart"></i> Pedidos</a>
             <a href="#" class="nav-item active"><i class="fas fa-chart-bar"></i> Reportes</a>
-            <a href="#" class="nav-item"><i class="fas fa-users"></i> Personal Interno</a>
+            <a href="{{ url_for('empleados') }}" class="nav-item"><i class="fas fa-users"></i> Personal Interno</a>
             <a href="#" class="nav-item"><i class="fas fa-user-shield"></i> Admin</a>
         </nav>
 
         <div class="header-right">
-    <a href="autopartes.html">
+    <a href="{{ url_for('login') }}">
         <button class="btn-logout">
             <i class="fas fa-sign-out-alt"></i>
         </button>

@@ -6,12 +6,12 @@
     <title>Verificar Correo - MACUIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="CSS/Password2.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Password2.css') }}" />
 </head>
 <body>
     <div class="auth-container">
          <div class="logo-section">
-      <img src="IMG/logo2.png" alt="Logo MACUIN" class="logo-img">
+      <img src="{{ url_for('static', filename='IMG/logo2.png') }}" alt="Logo MACUIN" class="logo-img">
     
       <p>Sistema de Gestión de Autopartes</p>
     </div>
@@ -48,7 +48,7 @@
                     <li><i class="fas fa-check-circle"></i> El enlace expirará en 30 minutos</li>
                 </ul>
             </div>
-            <a href="Passowrd3.html" class="btn btn-primary btn-full">
+            <a href="{{ url_for('passwd3') }}" class="btn btn-primary btn-full">
                 <i class="fas fa-mouse-pointer"></i>
                 Simular clic en enlace del correo
             </a>
@@ -56,7 +56,7 @@
                 <p class="resend-text">¿No recibiste el correo?</p>
                 <button class="btn-resend"><i class="fas fa-redo"></i> Reenviar correo</button>
             </div>
-            <a href="login.html" class="back-link"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
+            <a href="{{ url_for('login') }}" class="back-link"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
         </div>
         <p class="support-text">¿Necesitas ayuda? Contacta a soporte en <a href="mailto:soporte@macuin.com">soporte@macuin.com</a></p>
     </div>

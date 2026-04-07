@@ -6,7 +6,7 @@
     <title>Actualizar Stock - Salida - MACUIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="CSS/StockS.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/StockS.css') }}" />
 </head>
 <body>
     <div class="modal-container">
@@ -25,7 +25,7 @@
             <div class="form-group">
                 <label class="form-label">Tipo de Movimiento <span class="required">*</span></label>
                 <div class="movement-options">
-                    <a href="StockE.html" class="movement-option">
+                    <a href="{{ url_for('stock_entrada') }}" class="movement-option">
     <div class="option-icon entrada">
         <i class="fas fa-chart-line"></i>
         <span class="plus-icon">+</span>
@@ -57,9 +57,9 @@
             </div>
         </div>
         <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="window.location.href='inventario.html'">Cancelar</button>
+    <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('inventario') }}'">Cancelar</button>
 
-    <button class="btn btn-danger" onclick="window.location.href='inventario.html'">
+    <button class="btn btn-danger" onclick="window.location.href='{{ url_for('inventario') }}'">
         <i class="fas fa-sync-alt"></i> Actualizar Stock
     </button>
 </div>

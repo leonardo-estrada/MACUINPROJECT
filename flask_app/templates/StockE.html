@@ -6,7 +6,7 @@
     <title>Actualizar Stock - MACUIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="CSS/StockE.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/StockE.css') }}" />
 </head>
 <body>
     <div class="modal-container">
@@ -33,7 +33,7 @@
                         <span class="option-title">Entrada de Stock</span>
                         <span class="option-desc">Agregar inventario</span>
                     </div>
-                    <a href="StockS.html" class="movement-option">
+                    <a href="{{ url_for('stock_salida') }}" class="movement-option">
     <div class="option-icon salida">
         <i class="fas fa-chart-line down"></i>
         <span class="minus-icon">−</span>
@@ -57,11 +57,11 @@
             </div>
         </div>
         <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="window.location.href='inventario.html'">
+    <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('inventario') }}'">
         Cancelar
     </button>
 
-    <button class="btn btn-primary" onclick="window.location.href='inventario.html'">
+    <button class="btn btn-primary" onclick="window.location.href='{{ url_for('inventario') }}'">
         <i class="fas fa-sync-alt"></i> Actualizar Stock
     </button>
 </div>

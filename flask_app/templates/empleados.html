@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Empleados - MACUIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Reutilizamos tu CSS base para mantener consistencia */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; }
+        
+        .logo-img { width: 170px; height: auto; }
+        .main-header { background: #6B0F2A; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; height: 60px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .logo-small svg { height: 36px; width: auto; }
+        .header-title { font-size: 14px; font-weight: 500; }
+        .header-nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+        .nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; border-radius: 8px; transition: all 0.15s; }
+        .nav-item:hover, .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
+        .btn-logout { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; padding: 8px; border-radius: 8px; }
+        .btn-logout:hover { background: rgba(255,255,255,0.1); }
+        
+        .search-bar { background: #6B0F2A; padding: 15px 30px; }
+        .search-input { width: 100%; max-width: 500px; padding: 12px 15px 12px 45px; border: none; border-radius: 8px; background: rgba(255,255,255,0.15); color: white; font-size: 14px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.6)' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 15px center; }
+        .search-input::placeholder { color: rgba(255,255,255,0.6); }
+        
+        .main-content { padding: 30px; max-width: 1400px; margin: 0 auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-title h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
+        .page-title p { color: #666; font-size: 14px; }
+        
+        /* Botones de acción principal */
+        .btn-primary { background: #38A169; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 500; }
+        .btn-primary:hover { background: #2F855A; }
+        
+        .table-container { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #F7FAFC; }
+        th { padding: 15px; text-align: left; color: #666; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 15px; border-bottom: 1px solid #EDF2F7; vertical-align: middle; }
+        tr:hover { background: #F7FAFC; }
+        
+        .emp-name { font-weight: 500; color: #333; font-size: 14px; }
+        .emp-email { font-size: 12px; color: #666; }
+        
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .badge-admin { background: #E9D8FD; color: #553C9A; }
+        .badge-ventas { background: #BEE3F8; color: #2A4365; }
+        .badge-almacen { background: #FEEBC8; color: #744210; }
+        .badge-activo { background: #C6F6D5; color: #22543D; }
+        .badge-inactivo { background: #FED7D7; color: #742A2A; }
+        
+        .actions-group { display: flex; gap: 8px; }
+        .btn-icon { background: #EDF2F7; color: #4A5568; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-icon:hover { background: #E2E8F0; }
+        .btn-edit:hover { background: #BEE3F8; color: #2B6CB0; }
+        .btn-delete:hover { background: #FED7D7; color: #C53030; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo-small">
+                <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img" onerror="this.src=''">
+            </div>
+            <span class="header-title">Panel Administrativo</span>
+        </div>
+
+        <nav class="header-nav">
+            <a href="/inventario" class="nav-item"><i class="fas fa-box"></i> Inventario</a>
+            <a href="/pedidos" class="nav-item"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+            <a href="/reportes" class="nav-item"><i class="fas fa-chart-bar"></i> Reportes</a>
+            <a href="/empleados" class="nav-item active"><i class="fas fa-users"></i> Personal Interno</a>
+        </nav>
+
+        <div class="header-right">
+            <a href="/">
+                <button class="btn-logout" title="Cerrar Sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </a>
+        </div>
+    </header>
+
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Buscar empleado por nombre, ID o departamento...">
+    </div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h2>Gestión de Personal Interno</h2>
+                <p>Administración de accesos y roles del sistema (CRUD)</p>
+            </div>
+            <a href="#" class="btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Nuevo Empleado
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID EMPLEADO</th>
+                        <th>DATOS DEL PERSONAL</th>
+                        <th>DEPARTAMENTO</th>
+                        <th>ESTADO</th>
+                        <th>FECHA INGRESO</th>
+                        <th>ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EMP-001</td>
+                        <td>
+                            <div class="emp-name">Carlos Ramírez</div>
+                            <div class="emp-email">carlos.ramirez@macuin.com</div>
+                        </td>
+                        <td><span class="badge badge-admin">Administración</span></td>
+                        <td><span class="badge badge-activo">Activo</span></td>
+                        <td class="emp-email">12/Ene/2024</td>
+                        <td>
+                            <div class="actions-group">
+                                <button class="btn-icon btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon btn-delete" title="Dar de baja"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>EMP-002</td>
+                        <td>
+                            <div class="emp-name">Ana Lucía Torres</div>
+                            <div class="emp-email">ana.torres@macuin.com</div>
+                        </td>
+                        <td><span class="badge badge-ventas">Ventas</span></td>
+                        <td><span class="badge badge-activo">Activo</span></td>
+                        <td class="emp-email">05/Mar/2024</td>
+                        <td>
+                            <div class="actions-group">
+                                <button class="btn-icon btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon btn-delete" title="Dar de baja"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>EMP-003</td>
+                        <td>
+                            <div class="emp-name">Miguel Ángel Reyes</div>
+                            <div class="emp-email">miguel.reyes@macuin.com</div>
+                        </td>
+                        <td><span class="badge badge-almacen">Almacén y Logística</span></td>
+                        <td><span class="badge badge-inactivo">Inactivo</span></td>
+                        <td class="emp-email">20/Feb/2024</td>
+                        <td>
+                            <div class="actions-group">
+                                <button class="btn-icon btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon btn-delete" title="Dar de baja"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

@@ -13,3 +13,4 @@ Route::view('/registro', 'auth.registro')->name('registro');
 Route::view('/catalogo', 'cliente.catalogo')->name('catalogo');
 Route::view('/checkout', 'cliente.checkout')->name('checkout');
 Route::view('/historial', 'cliente.historial')->name('historial');
+Route::view('/carrito', 'cliente.carrito')->name('carrito');

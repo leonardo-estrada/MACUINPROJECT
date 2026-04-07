@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: macuin_flask_interno
     ports:
-      - "5000:5000"
+      - "5002:5000"
     volumes:
       - ./flask_app:/app
     environment:
