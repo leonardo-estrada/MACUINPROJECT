@@ -1,26 +1,83 @@
-version: '3.8'
-
 services:
+  # ----------------------------------------
+  # 1. BASE DE DATOS (POSTGRESQL)
+  # ----------------------------------------
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: macuin_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: Admin
+      POSTGRES_PASSWORD: PLFO205
+      POSTGRES_DB: Macuin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - macuin_net
+
+  # ----------------------------------------
+  # 2. CEREBRO CENTRAL (FASTAPI - BACKEND)
+  # ----------------------------------------
+  macuin-api:
+    build:
+      context: ./macuin_api
+      dockerfile: Dockerfile
+    container_name: macuin_fastapi
+    restart: always
+    ports:
+      - "8080:8000" # Entraremos a la API por el puerto 8080 en el navegador
+    environment:
+      # Apuntamos la conexión al contenedor de PostgreSQL creado arriba
+      - DATABASE_URL=postgresql://Admin:PLFO205@postgres_db:5432/Macuin
+    depends_on:
+      - postgres_db
+    networks:
+      - macuin_net
+
+  # ----------------------------------------
+  # 3. CLIENTE EXTERNO (LARAVEL - FRONTEND 1)
+  # ----------------------------------------
+  macuin-externo:
+    build:
+      context: ./Macuin_Laravel
+      dockerfile: Dockerfile
+    container_name: macuin_laravel_externo
+    ports:
+      - "8000:80" # Entraremos a Laravel por el puerto 8000
+    volumes:
+      - ./Macuin_Laravel:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    networks:
+      - macuin_net
+
+  # ----------------------------------------
+  # 4. PERSONAL INTERNO (FLASK - FRONTEND 2)
+  # ----------------------------------------
   macuin-interno:
     build: 
       context: ./flask_app
       dockerfile: Dockerfile
     container_name: macuin_flask_interno
     ports:
-      - "5002:5000"
+      - "5000:5000" # Entraremos a Flask por el puerto 5000
     volumes:
       - ./flask_app:/app
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
-      - FLASK_RUN_HOST=0.0.0.0  # <--- ESTA ES LA LÍNEA MÁGICA
+      - FLASK_RUN_HOST=0.0.0.0
+    networks:
+      - macuin_net
 
-  # Aquí en el futuro agregaremos el servicio de Laravel
-  # macuin-externo:
-  #   build: ./laravel_app
-  #   ports:
-  #     - "8000:8000"
-  
-  # Aquí en el futuro agregaremos la API Central
-  # macuin-api:
-  #   ...
+# Definimos el volumen persistente para que la BD no se borre si se apaga el contenedor
+volumes:
+  postgres_data:
+
+# Definimos la red interna para que los contenedores se comuniquen
+networks:
+  macuin_net:
+    driver: bridge
