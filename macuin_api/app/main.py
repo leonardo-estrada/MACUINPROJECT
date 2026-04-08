@@ -2,14 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # 1. Importamos la conexión y TODOS los modelos físicos
-# (Si no importamos los modelos aquí, SQLAlchemy no sabrá que existen y no creará las tablas)
 from app.data.db import engine, Base
 from app.data.usuario_externo import UsuarioExterno
-from app.data.usuario_interno import UsuarioInterno
+from app.data.usuario_interno import UsuarioInterno 
 from app.data.autoparte import Autoparte
+from app.data.pedido import Pedido, DetallePedido
 
-# 2. Importamos los enrutadores (nuestros 3 módulos)
-from app.routers import usuarios_externos, usuarios_internos, autopartes
+# 2. Importamos los enrutadores 
+from app.routers import usuarios_externos, usuarios_internos, autopartes, pedidos, reportes
 
 # 3. ¡Magia pura! Esta línea va a PostgreSQL y crea las tablas si no existen
 Base.metadata.create_all(bind=engine)
@@ -21,7 +21,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# 5. Configuración de CORS (Permite que Laravel y Flask se comuniquen con la API)
+# 5. Configuración de CORS 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # En producción aquí pondremos las IPs exactas de los contenedores
@@ -34,6 +34,8 @@ app.add_middleware(
 app.include_router(usuarios_externos.router)
 app.include_router(usuarios_internos.router)
 app.include_router(autopartes.router)
+app.include_router(pedidos.router)
+app.include_router(reportes.router)
 
 # 7. Ruta raíz para comprobar que el servidor está vivo (Health Check)
 @app.get("/", tags=["Estado del Servidor"])
