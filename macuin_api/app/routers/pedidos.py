@@ -11,6 +11,11 @@ router = APIRouter(
     tags=['CRUD Pedidos (1 a N)']
 )
 
+@router.get("/")
+def obtener_todos_los_pedidos(db: Session = Depends(get_db)):
+    pedidos = db.query(PedidoDB).all()
+    return {"data": pedidos}
+
 # --- 1. CREAR UN PEDIDO (CARRITO DE COMPRAS) ---
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def procesar_pedido(orden: CrearPedido, db: Session = Depends(get_db)):

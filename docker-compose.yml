@@ -28,6 +28,8 @@ services:
     restart: always
     ports:
       - "8080:8000" # Entraremos a la API por el puerto 8080 en el navegador
+    volumes:
+      - ./macuin_api:/app
     environment:
       # Apuntamos la conexión al contenedor de PostgreSQL creado arriba
       - DATABASE_URL=postgresql://Admin:PLFO205@postgres_db:5432/Macuin
@@ -45,7 +47,8 @@ services:
       dockerfile: Dockerfile
     container_name: macuin_laravel_externo
     ports:
-      - "8000:80" # Entraremos a Laravel por el puerto 8000
+      - "8000:80"
+      - "5173:5173" # Entraremos a Laravel por el puerto 8000
     volumes:
       - ./Macuin_Laravel:/var/www/html
     environment:
