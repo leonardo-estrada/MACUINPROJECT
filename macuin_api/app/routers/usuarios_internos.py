@@ -55,14 +55,35 @@ async def actualizar_empleado(id_empleado: int, datos_nuevos: ActualizarUsuarioI
     db.refresh(empleado_actual)
     return {"mensaje": "Datos del empleado actualizados", "status": "200", "data": empleado_actual}
 
-# --- 4. ELIMINAR / DAR DE BAJA (DELETE) ---
-@router.delete("/{id_empleado}")
-async def eliminar_empleado(id_empleado: int, db: Session = Depends(get_db)):
-    empleado_eliminar = db.query(EmpleadoDB).filter(EmpleadoDB.id == id_empleado).first()
+@router.delete("/{empleado_id}")
+def dar_de_baja_empleado(empleado_id: int, db: Session = Depends(get_db)):
+    empleado = db.query(EmpleadoDB).filter(EmpleadoDB.id == empleado_id).first()
     
-    if not empleado_eliminar:
+    if not empleado:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
-        
-    db.delete(empleado_eliminar)
+    empleado.activo = False
     db.commit()
-    return {"mensaje": "Registro de empleado eliminado del sistema", "status": "200"}
+    db.refresh(empleado)
+    return {
+        "mensaje": "Baja lógica procesada exitosamente", 
+        "data": {"id": empleado.id, "nombre": empleado.nombre, "activo": empleado.activo}
+    }
+
+@router.patch("/{empleado_id}/reactivar")
+def reactivar_empleado(empleado_id: int, db: Session = Depends(get_db)):
+    # 1. Buscamos al empleado
+    empleado = db.query(EmpleadoDB).filter(EmpleadoDB.id == empleado_id).first()
+    
+    if not empleado:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+    
+    # 2. Reversibilidad pura: lo regresamos a la vida
+    empleado.activo = True
+    
+    db.commit()
+    db.refresh(empleado)
+    
+    return {
+        "mensaje": "Empleado reactivado exitosamente", 
+        "data": {"id": empleado.id, "nombre": empleado.nombre, "activo": empleado.activo}
+    }

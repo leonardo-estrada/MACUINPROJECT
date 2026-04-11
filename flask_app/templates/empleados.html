@@ -1,70 +1,351 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Personal - MACUIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         /* === TU CSS ORIGINAL === */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; }
-        .logo-img{ width:170px; height:auto; }
-        .main-header { background: #6B0F2A; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; height: 60px; }
-        .header-left { display: flex; align-items: center; gap: 16px; }
-        .logo-small svg { height: 36px; width: auto; }
-        .header-title { font-size: 14px; font-weight: 500; }
-        .header-nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
-        .nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; border-radius: 8px; transition: all 0.15s; }
-        .nav-item:hover, .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
-        .btn-logout { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; padding: 8px; border-radius: 8px; }
-        .btn-logout:hover { background: rgba(255,255,255,0.1); }
-        .search-bar { background: #6B0F2A; padding: 15px 30px; }
-        .search-input { width: 100%; max-width: 500px; padding: 12px 15px 12px 45px; border: none; border-radius: 8px; background: rgba(255,255,255,0.15); color: white; font-size: 14px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.6)' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 15px center; }
-        .search-input::placeholder { color: rgba(255,255,255,0.6); }
-        .main-content { padding: 30px; max-width: 1400px; margin: 0 auto; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .page-title h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
-        .page-title p { color: #666; font-size: 14px; }
-        .btn-back { background: #4A5568; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
-        .btn-back:hover { background: #2D3748; }
-        .table-container { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: #F7FAFC; }
-        th { padding: 15px; text-align: left; color: #666; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 15px; border-bottom: 1px solid #EDF2F7; }
-        tr:hover { background: #F7FAFC; }
-        .product-name { font-weight: 500; color: #333; }
-        .product-brand { font-size: 12px; color: #666; }
-        .category-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .category-filtros { background: #E6FFFA; color: #234E52; }
-        .stock-value { font-weight: 600; }
-        .stock-good { color: #38A169; }
-        .btn-action { background: #8B1538; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-action:hover { background: #A91D3A; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .logo-img {
+            width: 170px;
+            height: auto;
+        }
+
+        .main-header {
+            background: #6B0F2A;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 24px;
+            height: 60px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-small svg {
+            height: 36px;
+            width: auto;
+        }
+
+        .header-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-nav {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 8px;
+            transition: all 0.15s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-bar {
+            background: #6B0F2A;
+            padding: 15px 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 15px 12px 45px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 14px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.6)' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 15px center;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .main-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-title h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-back {
+            background: #4A5568;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: #2D3748;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #F7FAFC;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            color: #666;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #EDF2F7;
+        }
+
+        tr:hover {
+            background: #F7FAFC;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .product-brand {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .category-filtros {
+            background: #E6FFFA;
+            color: #234E52;
+        }
+
+        .stock-value {
+            font-weight: 600;
+        }
+
+        .stock-good {
+            color: #38A169;
+        }
+
+        .btn-action {
+            background: #8B1538;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action:hover {
+            background: #A91D3A;
+        }
 
         /* === CSS MODALES === */
-        .btn-success { background: #38A169; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; margin-left: 10px; font-weight: 600;}
-        .btn-success:hover { background: #2F855A; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background-color: #fff; padding: 30px; border-radius: 10px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-        .close-btn { position: absolute; right: 20px; top: 20px; font-size: 24px; cursor: pointer; color: #666; border: none; background: none; }
-        .close-btn:hover { color: #E53E3E; }
-        .modal-title { margin-bottom: 20px; color: #333; font-size: 20px; border-bottom: 2px solid #EDF2F7; padding-bottom: 10px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #4A5568; font-size: 14px; font-weight: 500; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #CBD5E0; border-radius: 6px; font-size: 14px; }
-        .form-control:focus { outline: none; border-color: #8B1538; box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1); }
-        .modal-footer { margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-success {
+            background: #38A169;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        .btn-success:hover {
+            background: #2F855A;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            border: none;
+            background: none;
+        }
+
+        .close-btn:hover {
+            color: #E53E3E;
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 20px;
+            border-bottom: 2px solid #EDF2F7;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4A5568;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CBD5E0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #8B1538;
+            box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+        }
+
+        .modal-footer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
     </style>
 </head>
+
 <body>
     <header class="main-header">
         <div class="header-left">
             <div class="logo-small">
-                <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img" onerror="this.src=''">
+                <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img"
+                    onerror="this.src=''">
             </div>
             <span class="header-title">Personal Interno</span>
         </div>
@@ -93,7 +374,8 @@
             </div>
             <div>
                 <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> Volver a Gestión</a>
-                <button class="btn-success" onclick="abrirModal('modalAgregar')"><i class="fas fa-plus"></i> Nuevo Empleado</button>
+                <button class="btn-success" onclick="abrirModal('modalAgregar')"><i class="fas fa-plus"></i> Nuevo
+                    Empleado</button>
             </div>
         </div>
 
@@ -117,23 +399,36 @@
                         <td><span class="category-badge category-filtros">{{ empleado.departamento }}</span></td>
                         <td>
                             {% if empleado.activo %}
-                                <span class="stock-value stock-good">Activo</span>
+                            <span class="stock-value stock-good">Activo</span>
                             {% else %}
-                                <span class="stock-value" style="color: #E53E3E;">Inactivo</span>
+                            <span class="stock-value" style="color: #E53E3E;">Inactivo</span>
                             {% endif %}
                         </td>
                         <td>
                             <button class="btn-action" onclick="abrirModalEditarEmpleado('{{ empleado.id }}', '{{ empleado.nombre }}', '{{ empleado.departamento }}')">
                                 <i class="fas fa-pen"></i> Editar
                             </button>
-                            <a href="/empleados/eliminar/{{ empleado.id }}" class="btn-action" style="background-color: #E53E3E;" onclick="return confirm('¿Seguro que deseas dar de baja a este empleado?');">
-                                <i class="fas fa-trash"></i> Baja
-                            </a>
+                            {% if empleado.activo %}
+                            <form action="/empleados/{{ empleado.id }}/baja" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-action" title="Dar de Baja"
+                                    onclick="return confirm('¿Seguro que deseas dar de baja a este empleado?');">
+                                    <i class="fas fa-user-times"></i> Baja
+                                </button>
+                            </form>
+                            {% else %}
+                            <form action="/empleados/{{ empleado.id }}/reactivar" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-success" title="Reactivar Empleado">
+                                    <i class="fas fa-user-check"></i>Activar
+                                </button>
+                            </form>
+                            {% endif %}
+
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 20px;">No hay personal registrado en el sistema.</td>
+                        <td colspan="4" style="text-align: center; padding: 20px;">No hay personal registrado en el
+                            sistema.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -208,26 +503,27 @@
         function cerrarModal(idModal) {
             document.getElementById(idModal).style.display = 'none';
         }
-        
+
         // --- FUNCIÓN QUE CONECTA EL BOTÓN DE LA TABLA CON EL MODAL ---
         function abrirModalEditarEmpleado(id, nombre, departamento) {
             // Asigna la ruta correcta al formulario
             document.getElementById('formEditarEmpleado').action = '/empleados/editar/' + id;
-            
+
             // Llena los datos actuales
             document.getElementById('edit_emp_nombre').value = nombre;
             document.getElementById('edit_emp_depto').value = departamento;
-            
+
             // Abre el modal
             abrirModal('modalEditar');
         }
 
         // Cierra el modal si das click afuera
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target.className === 'modal') {
                 event.target.style.display = 'none';
             }
         }
     </script>
 </body>
+
 </html>

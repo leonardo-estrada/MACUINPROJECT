@@ -31,13 +31,92 @@ def passwd3():
     return render_template('Passowrd3.html')
 
 # RUTAS DEL PANEL ADMINISTRATIVO
+@app.route('/')
 @app.route('/dashboard')
 def dashboard():
-    return render_template('autopartes.html')
+    try:
+        # 1. Consultar a FastAPI
+        inv_resp = requests.get(f"{API_URL}/autopartes/")
+        inventario = inv_resp.json().get("data", []) if inv_resp.status_code == 200 else []
+        
+        ped_resp = requests.get(f"{API_URL}/pedidos/")
+        pedidos = ped_resp.json().get("data", []) if ped_resp.status_code == 200 else []
+        
+        cli_resp = requests.get(f"{API_URL}/clientes/")
+        clientes = cli_resp.json().get("data", []) if cli_resp.status_code == 200 else []
+        
+        emp_resp = requests.get(f"{API_URL}/usuarios_internos/")
+        empleados = emp_resp.json().get("data", []) if emp_resp.status_code == 200 else []
+        
+        # 2. Construir el diccionario 'stats' que el HTML está pidiendo
+        stats = {
+            "piezas": sum([item.get('stock', 0) for item in inventario]),
+            "pedidos": len(pedidos),
+            "clientes": len(clientes),
+            "empleados": len(empleados)
+        }
+        
+        # 3. Preparar datos para las gráficas
+        categorias_grafica = {}
+        for item in inventario:
+            cat = item.get('categoria', 'Otros')
+            categorias_grafica[cat] = categorias_grafica.get(cat, 0) + item.get('stock', 0)
+            
+        estatus_grafica = {}
+        for ped in pedidos:
+            est = ped.get('estatus', 'Pendiente')
+            estatus_grafica[est] = estatus_grafica.get(est, 0) + 1
+
+    except Exception as e:
+        print(f"🔥 Error en el Dashboard: {e}")
+        # Si falla, mandamos todo en cero para que la página no truene
+        stats = {"piezas": 0, "pedidos": 0, "clientes": 0, "empleados": 0}
+        categorias_grafica = {}
+        estatus_grafica = {}
+
+    # 4. Inyectamos las variables al template (Aquí estaba el error)
+    return render_template('autopartes.html', 
+                           stats=stats, 
+                           labels_inv=list(categorias_grafica.keys()), 
+                           data_inv=list(categorias_grafica.values()),
+                           labels_ped=list(estatus_grafica.keys()),
+                           data_ped=list(estatus_grafica.values()))
 
 @app.route('/pedidos')
 def pedidos():
-    return render_template('GPedidos.html')
+    try:
+        # 1. Traer todos los pedidos de FastAPI
+        resp_pedidos = requests.get(f"{API_URL}/pedidos/")
+        lista_pedidos = resp_pedidos.json().get("data", []) if resp_pedidos.status_code == 200 else []
+        
+        # 2. Traer los clientes para poder vincular su nombre y correo en la tabla
+        resp_clientes = requests.get(f"{API_URL}/clientes/")
+        lista_clientes = resp_clientes.json().get("data", []) if resp_clientes.status_code == 200 else []
+        
+        # Diccionario rápido para buscar al cliente por su ID
+        clientes_dict = {cli['id']: cli for cli in lista_clientes}
+
+        # 3. Calcular los conteos para tus tarjetas superiores (stats-container)
+        stats = {
+            "total": len(lista_pedidos),
+            "pendientes": len([p for p in lista_pedidos if p.get('estatus') == 'Pendiente']),
+            "en_proceso": len([p for p in lista_pedidos if p.get('estatus') == 'En Proceso']),
+            "enviados": len([p for p in lista_pedidos if p.get('estatus') == 'Enviado']),
+            "entregados": len([p for p in lista_pedidos if p.get('estatus') == 'Entregado']),
+            "cancelados": len([p for p in lista_pedidos if p.get('estatus') == 'Cancelado'])
+        }
+
+    except Exception as e:
+        print(f"🔥 Error API Pedidos: {e}")
+        lista_pedidos = []
+        clientes_dict = {}
+        stats = {"total": 0, "pendientes": 0, "en_proceso": 0, "enviados": 0, "entregados": 0, "cancelados": 0}
+
+    # Mandamos toda la información lista a tu HTML
+    return render_template('GPedidos.html', 
+                           pedidos=lista_pedidos, 
+                           clientes=clientes_dict, 
+                           stats=stats)
 
 @app.route('/reportes')
 def reportes():
@@ -175,10 +254,41 @@ def editar_empleado(id):
     requests.put(f"{API_URL}/empleados/{id}", json=datos_actualizados)
     return redirect(url_for('empleados')) 
 
-@app.route('/empleados/eliminar/<int:id>')
-def eliminar_empleado(id):
-    requests.delete(f"{API_URL}/empleados/{id}")
-    return redirect(url_for('empleados'))
+@app.route('/empleados/<int:id>/baja', methods=['POST'])
+def dar_de_baja_empleado_flask(id):
+    try:
+        # Hacemos la petición DELETE hacia FastAPI
+        url_api = f"{API_URL}/empleados/{id}"
+        resp = requests.delete(url_api)
+        
+        if resp.status_code == 200:
+            print(f"Empleado {id} dado de baja (lógica) con éxito.")
+        else:
+            print(f"Error al dar de baja empleado {id}: {resp.text}")
+            
+    except Exception as e:
+        print(f"🔥 Error de conexión en Flask: {e}")
+        
+    # Recargamos la página para ver cómo el botón cambia a verde
+    return redirect('/empleados')
+
+@app.route('/empleados/<int:id>/reactivar', methods=['POST'])
+def reactivar_empleado(id):
+    try:
+        # Usamos requests.patch para comunicarnos con el nuevo endpoint
+        url_api = f"{API_URL}/empleados/{id}/reactivar"
+        resp = requests.patch(url_api)
+        
+        if resp.status_code == 200:
+            print(f"Empleado {id} reactivado con éxito.")
+        else:
+            print(f"Error al reactivar empleado {id}: {resp.text}")
+            
+    except Exception as e:
+        print(f"Error de conexión en Flask: {e}")
+        
+    # Recargamos la página de empleados para ver el cambio
+    return redirect('/empleados')
 
 @app.route('/descargar-reporte/<tipo>/<formato>')
 def descargar_reporte(tipo, formato):
