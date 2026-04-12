@@ -30,12 +30,13 @@ router = APIRouter(prefix="/v1/reportes", tags=['Módulo de Reportes'])
 # --- MAGIA DE FILTRADO AQUÍ ---
 def extraer_datos_estructurados(tipo: str, db: Session, filtro: str, fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None):
     if tipo == "inventario":
-        headers = ["CÓDIGO", "NOMBRE", "MARCA", "CATEGORÍA", "STOCK"]
-        query = db.query(Autoparte)
-        if filtro != "todos":
-            query = query.filter(Autoparte.categoria == filtro) # Filtra por categoría
-        filas = [[p.codigo, p.nombre, p.marca, p.categoria, str(p.stock)] for p in query.all()]
-        return headers, filas
+            headers = ["CÓDIGO", "NOMBRE", "MARCA", "CATEGORÍA", "PRECIO", "STOCK"] # Agregamos PRECIO
+            query = db.query(Autoparte)
+            if filtro != "todos":
+                query = query.filter(Autoparte.categoria == filtro)
+            # Formateamos el precio con símbolo de dólar y dos decimales
+            filas = [[p.codigo, p.nombre, p.marca, p.categoria, f"${p.precio:.2f}", str(p.stock)] for p in query.all()]
+            return headers, filas
 
     elif tipo == "empleados":
         headers = ["NOMBRE", "CORREO", "DEPARTAMENTO", "ESTATUS"]
@@ -53,26 +54,24 @@ def extraer_datos_estructurados(tipo: str, db: Session, filtro: str, fecha_inici
         return headers, filas
 
     elif tipo == "pedidos":
-        headers = ["FOLIO", "ID CLIENTE", "FECHA", "ESTATUS"]
+        headers = ["FOLIO", "ID CLIENTE", "FECHA", "TOTAL", "ESTATUS"] # Agregamos TOTAL
         query = db.query(Pedido)
         
-        # Filtro 1: Estatus
         if filtro != "todos":
             query = query.filter(Pedido.estatus == filtro)
             
-        # Filtro 2: Rango de Fechas (Si el usuario las mandó)
         if fecha_inicio:
             query = query.filter(Pedido.fecha >= fecha_inicio)
         if fecha_fin:
             query = query.filter(Pedido.fecha <= fecha_fin)
             
-        filas = [[str(p.id), str(p.id_cliente), p.fecha.strftime('%Y-%m-%d'), p.estatus] for p in query.all()]
+        filas = [[str(p.id), str(p.id_cliente), p.fecha.strftime('%Y-%m-%d') if p.fecha else "N/A", f"${p.total:.2f}", p.estatus] for p in query.all()]
         return headers, filas
     return None, None
 
 # Agregamos "filtro" como parámetro opcional (por defecto "todos")
 @router.get("/{tipo}/{formato}")
-async def generar_reporte_profesional(tipo: str, formato: str, filtro: str = "todos", fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None, db: Session = Depends(get_db)):
+def generar_reporte_profesional(tipo: str, formato: str, filtro: str = "todos", fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None, db: Session = Depends(get_db)):
     
     headers, filas = extraer_datos_estructurados(tipo, db, filtro, fecha_inicio, fecha_fin)
     

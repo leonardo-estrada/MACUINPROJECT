@@ -13,13 +13,13 @@ router = APIRouter(
 
 # --- 1. LEER TODOS (GET) ---
 @router.get("/")
-async def obtener_clientes(db: Session = Depends(get_db)):
+def obtener_clientes(db: Session = Depends(get_db)):
     clientes = db.query(UsuarioDB).all()
     return {"status": "200", "total": len(clientes), "data": clientes}
 
 # --- 2. CREAR (POST) ---
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def registrar_cliente(cliente: CrearUsuarioExterno, db: Session = Depends(get_db)):
+def registrar_cliente(cliente: CrearUsuarioExterno, db: Session = Depends(get_db)):
     # Verificamos que el correo no exista ya en la BD
     correo_existente = db.query(UsuarioDB).filter(UsuarioDB.correo == cliente.correo).first()
     if correo_existente:
@@ -39,7 +39,7 @@ async def registrar_cliente(cliente: CrearUsuarioExterno, db: Session = Depends(
 
 # --- 3. ACTUALIZAR (PUT) - ¡Corregido a BD Real! ---
 @router.put("/{id_cliente}")
-async def actualizar_cliente(id_cliente: int, datos_nuevos: ActualizarUsuarioExterno, db: Session = Depends(get_db)):
+def actualizar_cliente(id_cliente: int, datos_nuevos: ActualizarUsuarioExterno, db: Session = Depends(get_db)):
     cliente_actual = db.query(UsuarioDB).filter(UsuarioDB.id == id_cliente).first()
     
     if not cliente_actual:
@@ -57,7 +57,7 @@ async def actualizar_cliente(id_cliente: int, datos_nuevos: ActualizarUsuarioExt
 
 # --- 4. ELIMINAR (DELETE) - ¡Corregido a BD Real! ---
 @router.delete("/{id_cliente}")
-async def eliminar_cliente(id_cliente: int, db: Session = Depends(get_db)):
+def eliminar_cliente(id_cliente: int, db: Session = Depends(get_db)):
     cliente_eliminar = db.query(UsuarioDB).filter(UsuarioDB.id == id_cliente).first()
     
     if not cliente_eliminar:

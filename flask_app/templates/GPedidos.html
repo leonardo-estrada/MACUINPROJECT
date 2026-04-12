@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,65 +8,112 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/GPedidos.css') }}" />
+
+    <style>
+        .select-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-content {
+            background: #fff;
+            margin: 8% auto;
+            padding: 25px;
+            width: 60%;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #6B0F2A;
+        }
+    </style>
 </head>
+
 <body>
     <header class="main-header">
         <div class="header-left">
-
             <div class="logo-small">
-      <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img">
-    </div>
-            <span class="header-title">Catálogo de Autopartes</span>
+                <img src="{{ url_for('static', filename='IMG/logo3.png') }}" alt="Logo MACUIN" class="logo-img">
+            </div>
+            <span class="header-title">Gestión de Pedidos</span>
         </div>
 
         <nav class="header-nav">
-            <a href="{{ url_for('inventario') }}" class="nav-item "><i class="fas fa-box"></i> Inventario</a>
-            <a href="#" class="nav-item active"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+            <a href="{{ url_for('inventario') }}" class="nav-item"><i class="fas fa-box"></i> Inventario</a>
+            <a href="{{ url_for('pedidos') }}" class="nav-item active"><i class="fas fa-shopping-cart"></i> Pedidos</a>
             <a href="{{ url_for('reportes') }}" class="nav-item"><i class="fas fa-chart-bar"></i> Reportes</a>
-            <a href="{{ url_for('empleados') }}" class="nav-item"><i class="fas fa-users"></i> Personal Interno</a>
-            <a href="#" class="nav-item"><i class="fas fa-user-shield"></i> Admin</a>
+            <a href="{{ url_for('empleados') }}" class="nav-item"><i class="fas fa-users"></i> Personal</a>
         </nav>
 
         <div class="header-right">
-    <a href="{{ url_for('dashboard') }}">
-        <button class="btn-logout">
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
-    </a>
-</div>
-    </header>
-
-    <div class="search-bar">
-        <div class="search-input-wrapper">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Buscar por nombre, código o categoría...">
+            <a href="{{ url_for('reportes') }}"><button class="btn-logout"><i
+                        class="fas fa-sign-out-alt"></i></button></a>
         </div>
-    </div>
+    </header>
 
     <main class="main-content">
         <div class="page-header">
-            <h1>Gestión de Pedidos</h1>
-            <p>Visualiza y administra todos los pedidos de clientes</p>
+            <div class="page-title">
+                <h1>Panel Administrativo de Ventas</h1>
+                <p>Monitoreo y despacho de pedidos de clientes externos</p>
+            </div>
+            <div>
+                <a href="/reportes" class="btn-back"><i class="fas fa-arrow-left"></i> Volver a Gestión</a>
+            </div>
         </div>
 
+
         <div class="stats-container">
-            <div class="stat-card"><span class="stat-label">Total</span><span class="stat-value">5</span></div>
-            <div class="stat-card pending"><span class="stat-label">Pendientes</span><span class="stat-value">2</span></div>
-            <div class="stat-card in-process"><span class="stat-label">En Proceso</span><span class="stat-value">2</span></div>
-            <div class="stat-card shipped"><span class="stat-label">Enviados</span><span class="stat-value">1</span></div>
-            <div class="stat-card delivered"><span class="stat-label">Entregados</span><span class="stat-value">1</span></div>
-            <div class="stat-card cancelled"><span class="stat-label">Cancelados</span><span class="stat-value">1</span></div>
+            <div class="stat-card"><span class="stat-label">Total</span><span class="stat-value">{{ stats.total
+                    }}</span></div>
+            <div class="stat-card pending"><span class="stat-label">Pendientes</span><span class="stat-value">{{
+                    stats.pendientes }}</span></div>
+            <div class="stat-card in-process"><span class="stat-label">En Proceso</span><span class="stat-value">{{
+                    stats.en_proceso }}</span></div>
+            <div class="stat-card shipped"><span class="stat-label">Enviados</span><span class="stat-value">{{
+                    stats.enviados }}</span></div>
+            <div class="stat-card delivered"><span class="stat-label">Entregados</span><span class="stat-value">{{
+                    stats.entregados }}</span></div>
+            <div class="stat-card cancelled"><span class="stat-label">Cancelados</span><span class="stat-value">{{
+                    stats.cancelados }}</span></div>
         </div>
 
         <div class="filter-section">
-            <span class="filter-label">Filtrar por estatus:</span>
             <div class="filter-tabs">
-                <button class="filter-tab active">Todos</button>
-                <button class="filter-tab pending">Pendientes</button>
-                <button class="filter-tab in-process">En Proceso</button>
-                <button class="filter-tab shipped">Enviados</button>
-                <button class="filter-tab delivered">Entregados</button>
-                <button class="filter-tab cancelled">Cancelados</button>
+                <a href="{{ url_for('pedidos', filtro='Todos') }}"
+                    class="filter-tab {% if filtro_actual == 'Todos' %}active{% endif %}">Todos</a>
+                <a href="{{ url_for('pedidos', filtro='Pendiente') }}"
+                    class="filter-tab pending {% if filtro_actual == 'Pendiente' %}active{% endif %}">Pendientes</a>
+                <a href="{{ url_for('pedidos', filtro='En Proceso') }}"
+                    class="filter-tab in-process {% if filtro_actual == 'En Proceso' %}active{% endif %}">En Proceso</a>
+                <a href="{{ url_for('pedidos', filtro='Enviado') }}"
+                    class="filter-tab shipped {% if filtro_actual == 'Enviado' %}active{% endif %}">Enviados</a>
+                <a href="{{ url_for('pedidos', filtro='Entregado') }}"
+                    class="filter-tab delivered {% if filtro_actual == 'Entregado' %}active{% endif %}">Entregados</a>
+                <a href="{{ url_for('pedidos', filtro='Cancelado') }}"
+                    class="filter-tab cancelled {% if filtro_actual == 'Cancelado' %}active{% endif %}">Cancelados</a>
             </div>
         </div>
 
@@ -73,137 +121,121 @@
             <table class="orders-table">
                 <thead>
                     <tr>
-                        <th>N° PEDIDO</th>
+                        <th>FOLIO</th>
                         <th>CLIENTE</th>
-                        <th>FECHA Y HORA</th>
+                        <th>FECHA</th>
                         <th>TOTAL</th>
                         <th>ESTATUS</th>
                         <th>ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for pedido in pedidos %}
                     <tr>
-                        <td class="order-id">PED-0001</td>
+                        <td class="order-id">PED-{{ "%04d" | format(pedido.id) }}</td>
                         <td>
+                            {% set cli = clientes.get(pedido.id_cliente, {}) %}
                             <div class="client-info">
-                                <span class="client-name">Juan Pérez García</span>
-                                <span class="client-email">juan.perez@email.com</span>
+                                <span class="client-name">{{ cli.get('nombre', 'Desconocido') }}</span>
+                                <span class="client-email">{{ cli.get('correo', '-') }}</span>
                             </div>
                         </td>
+                        <td>{{ pedido.fecha if pedido.fecha else 'N/A' }}</td>
+                        <td class="order-total">${{ "{:,.2f}".format(pedido.get('total', 0.0)) }}</td>
                         <td>
-                            <div class="order-date">
-                                <span class="date">2/2/2026</span>
-                                <span class="time">10:30 a.m.</span>
-                            </div>
+                            <form action="{{ url_for('cambiar_estatus_pedido', id=pedido.id) }}" method="POST">
+                                <select name="nuevo_estatus" class="select-status" onchange="this.form.submit()">
+                                    <option value="Pendiente" {% if pedido.estatus=='Pendiente' %}selected{% endif %}>
+                                        Pendiente</option>
+                                    <option value="En Proceso" {% if pedido.estatus=='En Proceso' %}selected{% endif %}>
+                                        En Proceso</option>
+                                    <option value="Enviado" {% if pedido.estatus=='Enviado' %}selected{% endif %}>
+                                        Enviado</option>
+                                    <option value="Entregado" {% if pedido.estatus=='Entregado' %}selected{% endif %}>
+                                        Entregado</option>
+                                    <option value="Cancelado" {% if pedido.estatus=='Cancelado' %}selected{% endif %}>
+                                        Cancelado</option>
+                                </select>
+                            </form>
                         </td>
-                        <td class="order-total">$64.97</td>
-                        <td><span class="status-badge pending">Pendiente</span></td>
                         <td>
-                            <div class="actions">
-                                <button class="btn-action view"><i class="fas fa-eye"></i></button>
-                                <button class="btn-action edit"><i class="fas fa-edit"></i></button>
-                            </div>
+                            <button class="btn-action view" onclick="verDetalle({{ pedido.id }})"><i
+                                    class="fas fa-eye"></i></button>
                         </td>
                     </tr>
-
+                    {% else %}
                     <tr>
-                        <td class="order-id">PED-0002</td>
-                        <td>
-                            <div class="client-info">
-                                <span class="client-name">María González López</span>
-                                <span class="client-email">maria.gonzalez@email.com</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="order-date">
-                                <span class="date">1/2/2026</span>
-                                <span class="time">02:20 p.m.</span>
-                            </div>
-                        </td>
-                        <td class="order-total">$239.99</td>
-                        <td><span class="status-badge in-process">En Proceso</span></td>
-                        <td>
-                            <div class="actions">
-                                <button class="btn-action view"><i class="fas fa-eye"></i></button>
-                                <button class="btn-action edit"><i class="fas fa-edit"></i></button>
-                            </div>
-                        </td>
+                        <td colspan="6" style="text-align: center; padding: 40px;">No se encontraron pedidos con este
+                            criterio.</td>
                     </tr>
-
-                    <tr>
-                        <td class="order-id">PED-0003</td>
-                        <td>
-                            <div class="client-info">
-                                <span class="client-name">Carlos Rodríguez Méndez</span>
-                                <span class="client-email">carlos.rodriguez@email.com</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="order-date">
-                                <span class="date">31/1/2026</span>
-                                <span class="time">09:15 a.m.</span>
-                            </div>
-                        </td>
-                        <td class="order-total">$189.99</td>
-                        <td><span class="status-badge shipped">Enviado</span></td>
-                        <td>
-                            <div class="actions">
-                                <button class="btn-action view"><i class="fas fa-eye"></i></button>
-                                <button class="btn-action edit"><i class="fas fa-edit"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="order-id">PED-0004</td>
-                        <td>
-                            <div class="client-info">
-                                <span class="client-name">Ana Martínez Silva</span>
-                                <span class="client-email">ana.martinez@email.com</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="order-date">
-                                <span class="date">30/1/2026</span>
-                                <span class="time">11:45 a.m.</span>
-                            </div>
-                        </td>
-                        <td class="order-total">$195.00</td>
-                        <td><span class="status-badge delivered">Entregado</span></td>
-                        <td>
-                            <div class="actions">
-                                <button class="btn-action view"><i class="fas fa-eye"></i></button>
-                                <button class="btn-action edit"><i class="fas fa-edit"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="order-id">PED-0005</td>
-                        <td>
-                            <div class="client-info">
-                                <span class="client-name">Roberto Sánchez Cruz</span>
-                                <span class="client-email">roberto.sanchez@email.com</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="order-date">
-                                <span class="date">29/1/2026</span>
-                                <span class="time">04:30 p.m.</span>
-                            </div>
-                        </td>
-                        <td class="order-total">$165.00</td>
-                        <td><span class="status-badge cancelled">Cancelado</span></td>
-                        <td>
-                            <div class="actions">
-                                <button class="btn-action view"><i class="fas fa-eye"></i></button>
-                                <button class="btn-action edit"><i class="fas fa-edit"></i></button>
-                            </div>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </main>
+
+    <div id="modalDetalle" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarModal()">&times;</span>
+            <h2 id="modal-titulo">Cargando Detalle...</h2>
+            <hr style="margin: 15px 0; border: 0.5px solid #eee;">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>P. Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-body"></tbody>
+            </table>
+            <div style="text-align: right; margin-top: 20px; font-weight: 700; font-size: 1.2rem;">
+                Total: <span id="modal-total" style="color: #6B0F2A;">$0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function verDetalle(id) {
+            document.getElementById('modalDetalle').style.display = 'block';
+            document.getElementById('modal-body').innerHTML = '<tr><td colspan="4" style="text-align:center;">Cargando...</td></tr>';
+
+            fetch('/pedidos/' + id + '/detalle')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('modal-titulo').innerText = 'Folio: PED-' + String(data.folio).padStart(4, '0');
+                    let html = '';
+                    let totalAcumulado = 0;
+
+                    if (data.productos && data.productos.length > 0) {
+                        data.productos.forEach(p => {
+                            // Usamos || 0 para evitar errores de undefined
+                            let precio = p.precio_unitario || 0;
+                            let sub = p.cantidad * precio;
+                            totalAcumulado += sub;
+
+                            html += `<tr>
+                        <td>${p.nombre_pieza}</td>
+                        <td>${p.cantidad}</td>
+                        <td>$${precio.toFixed(2)}</td>
+                        <td>$${sub.toFixed(2)}</td>
+                    </tr>`;
+                        });
+                    } else {
+                        html = '<tr><td colspan="4" style="text-align:center;">Este pedido no tiene productos registrados.</td></tr>';
+                    }
+
+                    document.getElementById('modal-body').innerHTML = html;
+                    document.getElementById('modal-total').innerText = '$' + totalAcumulado.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    document.getElementById('modal-body').innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error al conectar con el servidor.</td></tr>';
+                });
+        }
+        function cerrarModal() { document.getElementById('modalDetalle').style.display = 'none'; }
+    </script>
 </body>
+
 </html>

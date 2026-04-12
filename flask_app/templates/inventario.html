@@ -423,7 +423,7 @@
                 <p>Control de entradas y salidas de stock</p>
             </div>
             <div>
-                <a href="/dashboard" class="btn-back"><i class="fas fa-arrow-left"></i> Volver a Gestión</a>
+                <a href="/reportes" class="btn-back"><i class="fas fa-arrow-left"></i> Volver a Gestión</a>
                 <button class="btn-success" onclick="abrirModal('modalAgregar')"><i class="fas fa-plus"></i> Nueva
                     Autoparte</button>
             </div>
@@ -437,6 +437,7 @@
                         <th>PRODUCTO</th>
                         <th>CATEGORÍA</th>
                         <th>STOCK ACTUAL</th>
+                        <th>PRECIO</th>
                         <th>ACCIONES</th>
                     </tr>
                 </thead>
@@ -452,9 +453,10 @@
                         <td><span class="stock-value stock-good">{{ pieza.stock }} <span
                                     class="stock-unit">unidades</span></span>
                         </td>
+                        <td>${{ "%.2f"|format(pieza.precio) }}</td>
                         <td>
                             <button class="btn-action"
-                                onclick="abrirModalEditar('{{ pieza.id }}', '{{ pieza.codigo }}', '{{ pieza.nombre }}', '{{ pieza.stock }}')">
+                                onclick="abrirModalEditar('{{ pieza.id }}', '{{ pieza.codigo }}', '{{ pieza.nombre }}', '{{ pieza.stock }}', '{{ pieza.precio }}')"
                                 <i class="fas fa-pen"></i> Editar / Stock
                             </button>
                             <a href="/inventario/eliminar/{{ pieza.id }}" class="btn-action"
@@ -505,6 +507,10 @@
                     <label>Stock Inicial</label>
                     <input type="number" name="stock" class="form-control" value="0" min="0" required>
                 </div>
+                <div class="form-group">
+                    <label>Precio Unitario ($)</label>
+                    <input type="number" class="form-control" step="0.01" min="0.01" name="precio" required placeholder="0.00">
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-back" onclick="cerrarModal('modalAgregar')">Cancelar</button>
                     <button type="submit" class="btn-success"><i class="fas fa-save"></i> Guardar</button>
@@ -529,6 +535,10 @@
                     <label>Ajuste de Stock</label>
                     <input type="number" name="stock" id="edit_stock" class="form-control" min="0" required>
                 </div>
+                <div class="form-group">
+                    <label>Precio Unitario ($)</label>
+                    <input type="number" class="form-control" step="0.01" min="0.01" name="precio" id="edit-precio" required>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-back" onclick="cerrarModal('modalEditar')">Cancelar</button>
                     <button type="submit" class="btn-action"><i class="fas fa-sync"></i> Actualizar</button>
@@ -543,7 +553,7 @@
 
     <script>
         // Función para inyectar los datos en el modal de edición
-        function abrirModalEditar(id, codigo, nombre, stock) {
+        function abrirModalEditar(id, codigo, nombre, stock, precio) {
             // Cambiamos la URL a la que apuntará el formulario
             document.getElementById('formEditar').action = '/inventario/editar/' + id;
 
@@ -551,6 +561,7 @@
             document.getElementById('edit_codigo').value = codigo;
             document.getElementById('edit_nombre').value = nombre;
             document.getElementById('edit_stock').value = stock;
+            document.getElementById('edit-precio').value = precio;
 
             // Abrimos el modal
             abrirModal('modalEditar');

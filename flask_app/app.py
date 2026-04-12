@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, Response
+from flask import Flask, render_template, request, redirect, url_for, send_file, Response, jsonify
 import requests
 import os
 import io
@@ -32,92 +32,6 @@ def passwd3():
 
 # RUTAS DEL PANEL ADMINISTRATIVO
 @app.route('/')
-@app.route('/dashboard')
-def dashboard():
-    try:
-        # 1. Consultar a FastAPI
-        inv_resp = requests.get(f"{API_URL}/autopartes/")
-        inventario = inv_resp.json().get("data", []) if inv_resp.status_code == 200 else []
-        
-        ped_resp = requests.get(f"{API_URL}/pedidos/")
-        pedidos = ped_resp.json().get("data", []) if ped_resp.status_code == 200 else []
-        
-        cli_resp = requests.get(f"{API_URL}/clientes/")
-        clientes = cli_resp.json().get("data", []) if cli_resp.status_code == 200 else []
-        
-        emp_resp = requests.get(f"{API_URL}/usuarios_internos/")
-        empleados = emp_resp.json().get("data", []) if emp_resp.status_code == 200 else []
-        
-        # 2. Construir el diccionario 'stats' que el HTML está pidiendo
-        stats = {
-            "piezas": sum([item.get('stock', 0) for item in inventario]),
-            "pedidos": len(pedidos),
-            "clientes": len(clientes),
-            "empleados": len(empleados)
-        }
-        
-        # 3. Preparar datos para las gráficas
-        categorias_grafica = {}
-        for item in inventario:
-            cat = item.get('categoria', 'Otros')
-            categorias_grafica[cat] = categorias_grafica.get(cat, 0) + item.get('stock', 0)
-            
-        estatus_grafica = {}
-        for ped in pedidos:
-            est = ped.get('estatus', 'Pendiente')
-            estatus_grafica[est] = estatus_grafica.get(est, 0) + 1
-
-    except Exception as e:
-        print(f"🔥 Error en el Dashboard: {e}")
-        # Si falla, mandamos todo en cero para que la página no truene
-        stats = {"piezas": 0, "pedidos": 0, "clientes": 0, "empleados": 0}
-        categorias_grafica = {}
-        estatus_grafica = {}
-
-    # 4. Inyectamos las variables al template (Aquí estaba el error)
-    return render_template('autopartes.html', 
-                           stats=stats, 
-                           labels_inv=list(categorias_grafica.keys()), 
-                           data_inv=list(categorias_grafica.values()),
-                           labels_ped=list(estatus_grafica.keys()),
-                           data_ped=list(estatus_grafica.values()))
-
-@app.route('/pedidos')
-def pedidos():
-    try:
-        # 1. Traer todos los pedidos de FastAPI
-        resp_pedidos = requests.get(f"{API_URL}/pedidos/")
-        lista_pedidos = resp_pedidos.json().get("data", []) if resp_pedidos.status_code == 200 else []
-        
-        # 2. Traer los clientes para poder vincular su nombre y correo en la tabla
-        resp_clientes = requests.get(f"{API_URL}/clientes/")
-        lista_clientes = resp_clientes.json().get("data", []) if resp_clientes.status_code == 200 else []
-        
-        # Diccionario rápido para buscar al cliente por su ID
-        clientes_dict = {cli['id']: cli for cli in lista_clientes}
-
-        # 3. Calcular los conteos para tus tarjetas superiores (stats-container)
-        stats = {
-            "total": len(lista_pedidos),
-            "pendientes": len([p for p in lista_pedidos if p.get('estatus') == 'Pendiente']),
-            "en_proceso": len([p for p in lista_pedidos if p.get('estatus') == 'En Proceso']),
-            "enviados": len([p for p in lista_pedidos if p.get('estatus') == 'Enviado']),
-            "entregados": len([p for p in lista_pedidos if p.get('estatus') == 'Entregado']),
-            "cancelados": len([p for p in lista_pedidos if p.get('estatus') == 'Cancelado'])
-        }
-
-    except Exception as e:
-        print(f"🔥 Error API Pedidos: {e}")
-        lista_pedidos = []
-        clientes_dict = {}
-        stats = {"total": 0, "pendientes": 0, "en_proceso": 0, "enviados": 0, "entregados": 0, "cancelados": 0}
-
-    # Mandamos toda la información lista a tu HTML
-    return render_template('GPedidos.html', 
-                           pedidos=lista_pedidos, 
-                           clientes=clientes_dict, 
-                           stats=stats)
-
 @app.route('/reportes')
 def reportes():
     try:
@@ -169,6 +83,66 @@ def reportes():
                            labels_ped=list(estatus_grafica.keys()),
                            data_ped=list(estatus_grafica.values()))
 
+@app.route('/pedidos')
+def pedidos():
+    try:
+        # Atrapamos el filtro desde la URL
+        filtro = request.args.get('filtro', 'Todos')
+
+        # Consumimos la API de Pedidos 
+        resp_pedidos = requests.get(f"{API_URL}/pedidos/")
+        todos_pedidos = resp_pedidos.json().get("data", []) if resp_pedidos.status_code == 200 else []
+        
+        # Necesitamos los clientes para vincular nombres en la tabla
+        resp_clientes = requests.get(f"{API_URL}/clientes/")
+        lista_clientes = resp_clientes.json().get("data", []) if resp_clientes.status_code == 200 else []
+        clientes_dict = {cli['id']: cli for cli in lista_clientes}
+
+        # Cálculo de estadísticas en tiempo real para las tarjetas
+        stats = {
+            "total": len(todos_pedidos),
+            "pendientes": len([p for p in todos_pedidos if p.get('estatus') == 'Pendiente']),
+            "en_proceso": len([p for p in todos_pedidos if p.get('estatus') == 'En Proceso']),
+            "enviados": len([p for p in todos_pedidos if p.get('estatus') == 'Enviado']),
+            "entregados": len([p for p in todos_pedidos if p.get('estatus') == 'Entregado']),
+            "cancelados": len([p for p in todos_pedidos if p.get('estatus') == 'Cancelado'])
+        }
+
+        # Aplicamos el filtro a la lista de la tabla
+        if filtro != 'Todos':
+            lista_pedidos = [p for p in todos_pedidos if p.get('estatus') == filtro]
+        else:
+            lista_pedidos = todos_pedidos
+
+    except Exception as e:
+        print(f"Error en Gestión de Pedidos: {e}")
+        lista_pedidos, clientes_dict = [], {}
+        stats = {"total": 0, "pendientes": 0, "en_proceso": 0, "enviados": 0, "entregados": 0, "cancelados": 0}
+        filtro = "Todos"
+
+    return render_template('GPedidos.html', 
+                           pedidos=lista_pedidos, 
+                           clientes=clientes_dict, 
+                           stats=stats,
+                           filtro_actual=filtro) # Enviamos el filtro al front
+
+# --- RUTAS DE ACCIÓN DE PEDIDOS ---
+
+@app.route('/pedidos/<int:id>/estatus', methods=['POST'])
+def cambiar_estatus_pedido(id):
+    # El front nos enviará el 'nuevo_estatus' por formulario
+    nuevo_estatus = request.form.get('nuevo_estatus')
+    requests.patch(f"{API_URL}/pedidos/{id}/estatus", json={"estatus": nuevo_estatus})
+    return redirect(url_for('pedidos'))
+
+@app.route('/pedidos/<int:id>/detalle')
+def detalle_pedido_json(id):
+    # Endpoint para que el front lo consuma mediante Fetch API y llene un Modal
+    resp = requests.get(f"{API_URL}/pedidos/{id}")
+    if resp.status_code == 200:
+        return jsonify(resp.json().get("data", {}))
+    return jsonify({"error": "No se pudo cargar el detalle"}), 400
+
 @app.route('/stock-entrada')
 def stock_entrada():
     return render_template('StockE.html')
@@ -196,6 +170,7 @@ def agregar_autoparte():
         "nombre": request.form['nombre'],
         "marca": request.form['marca'],
         "categoria": request.form['categoria'],
+        "precio": float(request.form.get('precio', 0.0)),
         "stock": int(request.form['stock'])
     }
     requests.post(f"{API_URL}/inventario/", json=nueva_pieza)
@@ -205,6 +180,7 @@ def agregar_autoparte():
 def editar_autoparte(id):
     datos_actualizados = {
         "nombre": request.form['nombre'],
+        "precio": float(request.form.get('precio', 0.0)),
         "stock": int(request.form['stock'])
     }
     
@@ -317,6 +293,34 @@ def descargar_reporte(tipo, formato):
             }
         )
     return "Error al generar reporte", 400
+
+@app.route('/ventas')
+def ventas():
+    try:
+        # 1. Obtenemos datos base
+        resp_pedidos = requests.get(f"{API_URL}/pedidos/")
+        pedidos = resp_pedidos.json().get("data", [])
+        
+        resp_inv = requests.get(f"{API_URL}/inventario/")
+        inventario = {p['id']: p for p in resp_inv.json().get("data", [])}
+
+        # 2. Lógica de Ventas: Solo pedidos que ya generaron ingreso
+        ventas_reales = [p for p in pedidos if p.get('estatus') in ['Enviado', 'Entregado']]
+        
+        ingreso_total = 0
+        por_categoria = {}
+
+        for v in ventas_reales:
+            # Aquí deberíamos consultar el detalle de cada pedido para sumar precios
+            # Por ahora, simulamos el cálculo basado en el total del pedido
+            ingreso_total += v.get('total_venta', 0) 
+
+        return render_template('ventas.html', 
+                               ventas=ventas_reales, 
+                               ingreso=ingreso_total,
+                               top_categorias=por_categoria)
+    except Exception as e:
+        return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

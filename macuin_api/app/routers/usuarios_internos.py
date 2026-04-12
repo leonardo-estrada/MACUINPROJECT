@@ -12,13 +12,13 @@ router = APIRouter(
 
 # --- 1. LEER TODOS (GET) ---
 @router.get("/")
-async def obtener_empleados(db: Session = Depends(get_db)):
+def obtener_empleados(db: Session = Depends(get_db)):
     empleados = db.query(EmpleadoDB).all()
     return {"status": "200", "total": len(empleados), "data": empleados}
 
 # --- 2. CREAR (POST) ---
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def registrar_empleado(empleado: CrearUsuarioInterno, db: Session = Depends(get_db)):
+def registrar_empleado(empleado: CrearUsuarioInterno, db: Session = Depends(get_db)):
     correo_existente = db.query(EmpleadoDB).filter(EmpleadoDB.correo == empleado.correo).first()
     if correo_existente:
         raise HTTPException(status_code=400, detail="Este correo ya pertenece a un empleado")
@@ -38,7 +38,7 @@ async def registrar_empleado(empleado: CrearUsuarioInterno, db: Session = Depend
 
 # --- 3. ACTUALIZAR (PUT) ---
 @router.put("/{id_empleado}")
-async def actualizar_empleado(id_empleado: int, datos_nuevos: ActualizarUsuarioInterno, db: Session = Depends(get_db)):
+def actualizar_empleado(id_empleado: int, datos_nuevos: ActualizarUsuarioInterno, db: Session = Depends(get_db)):
     empleado_actual = db.query(EmpleadoDB).filter(EmpleadoDB.id == id_empleado).first()
     
     if not empleado_actual:

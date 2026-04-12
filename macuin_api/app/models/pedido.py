@@ -10,3 +10,6 @@ class ItemPedido(BaseModel):
 class CrearPedido(BaseModel):
     id_cliente: int = Field(..., description="ID del usuario que hace la compra")
     productos: List[ItemPedido] = Field(..., min_length=1, description="Lista de 1 a N productos")
+
+class EstatusUpdate(BaseModel):
+    estatus: str

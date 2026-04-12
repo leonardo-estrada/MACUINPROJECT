@@ -12,13 +12,13 @@ router = APIRouter(
 
 # --- 1. LEER TODOS (GET) ---
 @router.get("/")
-async def obtener_autopartes(db: Session = Depends(get_db)):
+def obtener_autopartes(db: Session = Depends(get_db)):
     inventario = db.query(AutoparteDB).all()
     return {"status": "200", "total": len(inventario), "data": inventario}
 
 # --- 2. CREAR (POST) ---
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def registrar_autoparte(pieza: CrearAutoparte, db: Session = Depends(get_db)):
+def registrar_autoparte(pieza: CrearAutoparte, db: Session = Depends(get_db)):
     # Verificamos que el código de producto no exista
     codigo_existente = db.query(AutoparteDB).filter(AutoparteDB.codigo == pieza.codigo).first()
     if codigo_existente:
@@ -29,7 +29,8 @@ async def registrar_autoparte(pieza: CrearAutoparte, db: Session = Depends(get_d
         nombre=pieza.nombre,
         marca=pieza.marca,
         categoria=pieza.categoria,
-        stock=pieza.stock
+        stock=pieza.stock,
+        precio=pieza.precio
     )
     db.add(nueva_pieza)
     db.commit()
@@ -39,7 +40,7 @@ async def registrar_autoparte(pieza: CrearAutoparte, db: Session = Depends(get_d
 
 # --- 3. ACTUALIZAR (PUT) ---
 @router.put("/{id_autoparte}")
-async def actualizar_autoparte(id_autoparte: int, datos_nuevos: ActualizarAutoparte, db: Session = Depends(get_db)):
+def actualizar_autoparte(id_autoparte: int, datos_nuevos: ActualizarAutoparte, db: Session = Depends(get_db)):
     pieza_actual = db.query(AutoparteDB).filter(AutoparteDB.id == id_autoparte).first()
     
     if not pieza_actual:
@@ -53,6 +54,8 @@ async def actualizar_autoparte(id_autoparte: int, datos_nuevos: ActualizarAutopa
         pieza_actual.categoria = datos_nuevos.categoria
     if datos_nuevos.stock is not None:
         pieza_actual.stock = datos_nuevos.stock
+    if datos_nuevos.precio is not None:
+        pieza_actual.precio = datos_nuevos.precio
         
     db.commit()
     db.refresh(pieza_actual)
@@ -60,7 +63,7 @@ async def actualizar_autoparte(id_autoparte: int, datos_nuevos: ActualizarAutopa
 
 # --- 4. ELIMINAR (DELETE) ---
 @router.delete("/{id_autoparte}")
-async def eliminar_autoparte(id_autoparte: int, db: Session = Depends(get_db)):
+def eliminar_autoparte(id_autoparte: int, db: Session = Depends(get_db)):
     pieza_eliminar = db.query(AutoparteDB).filter(AutoparteDB.id == id_autoparte).first()
     
     if not pieza_eliminar:
