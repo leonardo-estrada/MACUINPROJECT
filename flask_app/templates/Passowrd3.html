@@ -12,7 +12,6 @@
     <div class="auth-container">
          <div class="logo-section">
       <img src="{{ url_for('static', filename='IMG/logo2.png') }}" alt="Logo MACUIN" class="logo-img">
-    
       <p>Sistema de Gestión de Autopartes</p>
     </div>
         <div class="auth-card">
@@ -35,38 +34,23 @@
             <div class="recovery-icon"><i class="fas fa-lock"></i></div>
             <h2 class="auth-title-small">Crear nueva contraseña</h2>
             <p class="auth-description">Elige una contraseña segura para tu cuenta.</p>
-            <form class="auth-form">
-                <div class="form-group">
+            
+            <form action="{{ url_for('pass3') }}" method="POST" class="auth-form">
+                <div class="form-group" style="text-align: left; margin-bottom: 20px;">
                     <label for="new-password">Nueva contraseña</label>
                     <div class="input-group">
                         <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="new-password" placeholder="••••••••" required>
-                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                        <input type="password" id="new-password" name="password" placeholder="••••••••" minlength="6" required style="width: 100%; padding: 10px 10px 10px 35px; border-radius: 5px; border: 1px solid #ccc;">
                     </div>
                 </div>
-                <div class="password-requirements">
-                    <div class="requirement"><i class="fas fa-circle"></i><span>Al menos 8 caracteres</span></div>
-                    <div class="requirement"><i class="fas fa-circle"></i><span>Una letra mayúscula</span></div>
-                    <div class="requirement"><i class="fas fa-circle"></i><span>Un número o símbolo</span></div>
-                    <div class="requirement"><i class="fas fa-circle"></i><span>Sin espacios</span></div>
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Confirmar contraseña</label>
-                    <div class="input-group">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="confirm-password" placeholder="••••••••" required>
-                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <a href="{{ url_for('login') }}" class="btn btn-primary btn-full">
-                    <i class="fas fa-shield-alt"></i>
-                    Establecer nueva contraseña
-                </a>
                 
+                <button type="submit" class="btn btn-primary btn-full" style="width: 100%; padding: 12px; background-color: #2F855A; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                    <i class="fas fa-shield-alt"></i> Establecer nueva contraseña
+                </button>
             </form>
-            <a href="{{ url_for('login') }}" class="back-link"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
+
+            <a href="{{ url_for('login') }}" class="back-link" style="display: block; margin-top: 20px;"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
         </div>
-        <p class="support-text">¿Necesitas ayuda? Contacta a soporte en <a href="mailto:soporte@macuin.com">soporte@macuin.com</a></p>
     </div>
 </body>
 </html>

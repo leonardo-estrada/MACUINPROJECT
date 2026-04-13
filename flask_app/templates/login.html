@@ -1,16 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - MACUIN</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/login.css') }}" />
+  <style>
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #CBD5E0;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #8B1538;
+      box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+    }
+  </style>
 </head>
+
 <body>
   <div class="login-page">
     <div class="logo-section">
       <img src="{{ url_for('static', filename='IMG/logo2.png') }}" alt="Logo MACUIN" class="logo-img">
-    
+
       <p>Sistema de Gestión de Autopartes</p>
     </div>
 
@@ -20,51 +37,39 @@
         <p>Sistema de Gestión de Autopartes</p>
       </div>
 
-      <form>
+      <form action="/" method="POST" class="login-form">
+
         <div class="form-group">
-          <label for="email">Correo electrónico</label>
-          <div class="input-wrapper">
-            <span class="input-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </span>
-            <input type="email" id="email" placeholder="Correo" />
-          </div>
+          <label for="correo">Correo Electrónico</label>
+          <input class="form-control" type="email" id="correo" name="correo" placeholder="ejemplo@macuin.com" required>
         </div>
 
         <div class="form-group">
           <label for="password">Contraseña</label>
-          <div class="input-wrapper">
-            <span class="input-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </span>
-            <input type="password" id="password" placeholder="••••••••" />
-          </div>
+          <input class="form-control" type="password" id="password" name="password" placeholder="••••••••" required>
         </div>
 
-        <div class="form-options">
-          <label class="remember-me">
-            <input type="checkbox" />
-            <span>Recordarme</span>
-          </label>
-
-          <a href="{{ url_for('passwd1') }}" class="forgot-password">¿Olvidó su contraseña?</a>
+        <div class="form-actions">
+          <button type="submit" class="login-btn">Iniciar Sesión</button>
         </div>
 
-        <a href="{{ url_for('reportes') }}" class="login-btn">
-  <span class="btn-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <line x1="5" y1="12" x2="19" y2="12"/>
-      <polyline points="12 5 19 12 12 19"/>
-    </svg>
-  </span>
-  <span>Iniciar Sesión</span>
-</a>
+        {% with messages = get_flashed_messages(category_filter=["error"]) %}
+        {% if messages %}
+        <div class="error-message"
+          style="color: #E53E3E; text-align: center; margin-top: 15px; font-weight: 600; font-size: 0.9rem;">
+          <i class="fas fa-exclamation-circle"></i> {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+      </form>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="{{ url_for('pass1') }}" class="forgot-password"
+          style="color: #6B0F2A; text-decoration: none; font-size: 0.9rem;">
+          ¿Olvidó su contraseña?
+        </a>
+      </div>
       </form>
 
       <p class="footer-text">
@@ -73,4 +78,5 @@
     </div>
   </div>
 </body>
+
 </html>

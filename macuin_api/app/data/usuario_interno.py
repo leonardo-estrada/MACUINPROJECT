@@ -9,4 +9,5 @@ class UsuarioInterno(Base):
     correo = Column(String(150), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
     departamento = Column(String(50), nullable=False) # ej: Sistemas, Ventas, Almacén
-    activo = Column(Boolean, default=True) # True = Activo, False = Inactivo
+    activo = Column(Boolean, default=True)
+    token_recuperacion = Column(String(6), nullable=True)

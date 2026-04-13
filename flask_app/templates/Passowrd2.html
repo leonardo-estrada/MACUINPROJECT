@@ -12,7 +12,6 @@
     <div class="auth-container">
          <div class="logo-section">
       <img src="{{ url_for('static', filename='IMG/logo2.png') }}" alt="Logo MACUIN" class="logo-img">
-    
       <p>Sistema de Gestión de Autopartes</p>
     </div>
         <div class="auth-card">
@@ -36,29 +35,30 @@
                 <i class="fas fa-envelope"></i>
                 <span class="notification-badge"><i class="fas fa-check"></i></span>
             </div>
-            <h2 class="auth-title-small">Revisa tu correo</h2>
-            <p class="auth-description">Hemos enviado un enlace de recuperación a</p>
-            <p class="user-email">usuario@email.com</p>
-            <div class="info-box">
-                <p class="info-title">¿Qué hacer a continuación?</p>
-                <ul class="info-list">
-                    <li><i class="fas fa-check-circle"></i> Abre tu bandeja de entrada (o carpeta de spam)</li>
-                    <li><i class="fas fa-check-circle"></i> Busca un correo de Autopartes@macuin.com</li>
-                    <li><i class="fas fa-check-circle"></i> Haz clic en el enlace "Restablecer contraseña"</li>
-                    <li><i class="fas fa-check-circle"></i> El enlace expirará en 30 minutos</li>
-                </ul>
-            </div>
-            <a href="{{ url_for('passwd3') }}" class="btn btn-primary btn-full">
-                <i class="fas fa-mouse-pointer"></i>
-                Simular clic en enlace del correo
-            </a>
-            <div class="resend-section">
-                <p class="resend-text">¿No recibiste el correo?</p>
-                <button class="btn-resend"><i class="fas fa-redo"></i> Reenviar correo</button>
-            </div>
-            <a href="{{ url_for('login') }}" class="back-link"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
+            <h2 class="auth-title-small">Revisa tu terminal/correo</h2>
+            <p class="auth-description">Ingresa el código de 6 dígitos para continuar.</p>
+            
+            <form action="{{ url_for('pass2') }}" method="POST" class="login-form">
+                <div class="input-group" style="margin: 20px 0;">
+                    <label for="codigo" style="display:block; text-align:left; margin-bottom:5px; font-weight:500;">Código de Seguridad</label>
+                    <input type="text" id="codigo" name="codigo" placeholder="000000" pattern="\d{6}" maxlength="6" required style="width: 100%; padding: 15px; border-radius: 5px; border: 1px solid #ccc; letter-spacing: 8px; text-align: center; font-size: 1.5rem; font-weight: bold;">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" style="width: 100%; padding: 12px; background-color: #6B0F2A; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-check-circle"></i> Validar Código
+                </button>
+
+                {% with messages = get_flashed_messages(category_filter=["error"]) %}
+                    {% if messages %}
+                        <div style="color: #E53E3E; text-align: center; margin-top: 15px; font-weight: 600; font-size: 0.9rem;">
+                            <i class="fas fa-exclamation-circle"></i> {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </form>
+
+            <a href="{{ url_for('login') }}" class="back-link" style="display: block; margin-top: 20px;"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
         </div>
-        <p class="support-text">¿Necesitas ayuda? Contacta a soporte en <a href="mailto:soporte@macuin.com">soporte@macuin.com</a></p>
     </div>
 </body>
 </html>

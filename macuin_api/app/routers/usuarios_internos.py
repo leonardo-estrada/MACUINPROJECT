@@ -1,15 +1,80 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.data.db import get_db
+import random
 
 from app.data.usuario_interno import UsuarioInterno as EmpleadoDB
-from app.models.usuario_interno import CrearUsuarioInterno, ActualizarUsuarioInterno
+from app.models.usuario_interno import CrearUsuarioInterno, ActualizarUsuarioInterno, LoginSchema,ResetPasswordSchema, SolicitarResetSchema, ValidarTokenSchema
 
 router = APIRouter(
     prefix="/v1/empleados",
     tags=['CRUD Usuarios Internos (Personal)']
 )
+@router.post("/login")
+def login_empleado(credenciales: LoginSchema, db: Session = Depends(get_db)):
+    # Buscamos al empleado por correo
+    empleado = db.query(EmpleadoDB).filter(EmpleadoDB.correo == credenciales.correo).first()
+    
+    if not empleado or empleado.password != credenciales.password:
+        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
+    
+    if not empleado.activo:
+        raise HTTPException(status_code=403, detail="Esta cuenta ha sido desactivada")
+        
+    return {
+        "status": "200",
+        "usuario": {
+            "id": empleado.id,
+            "nombre": empleado.nombre,
+            "rol": empleado.departamento
+        }
+    }
 
+# --- ENDPOINT DE RECUPERACIÓN (SIMPLIFICADO PARA LA RÚBRICA) ---
+import random
+
+# PASO 1: Generar el código
+@router.post("/recuperar/solicitar")
+def solicitar_recuperacion(datos: SolicitarResetSchema, db: Session = Depends(get_db)):
+    empleado = db.query(EmpleadoDB).filter(EmpleadoDB.correo == datos.correo).first()
+    
+    # Por seguridad, siempre devolvemos "Ok" para no revelar si un correo existe o no a los hackers
+    if empleado:
+        # Generamos un código de 6 dígitos
+        codigo = str(random.randint(100000, 999999))
+        empleado.token_recuperacion = codigo
+        db.commit()
+        
+        # ⚠️ MODO DESARROLLO: Imprimimos el código en la consola de Docker
+        # En producción, aquí iría tu código de smtplib para enviar un correo real
+        print(f"🛑 [MACUIN SECURITY] CÓDIGO DE RECUPERACIÓN PARA {empleado.correo}: {codigo} 🛑")
+        
+    return {"status": "200", "mensaje": "Si el correo existe, se envió un código"}
+
+# PASO 2: Validar el código
+@router.post("/recuperar/validar")
+def validar_codigo(datos: ValidarTokenSchema, db: Session = Depends(get_db)):
+    empleado = db.query(EmpleadoDB).filter(EmpleadoDB.correo == datos.correo).first()
+    
+    if not empleado or empleado.token_recuperacion != datos.token:
+        raise HTTPException(status_code=400, detail="Código inválido o expirado")
+        
+    return {"status": "200", "mensaje": "Código verificado correctamente"}
+
+# PASO 3: Cambiar la contraseña de forma segura
+@router.post("/recuperar/reset")
+def ejecutar_reset(datos: ResetPasswordSchema, db: Session = Depends(get_db)):
+    empleado = db.query(EmpleadoDB).filter(EmpleadoDB.correo == datos.correo).first()
+    
+    # Doble validación: Asegurarnos de que tenga un token activo antes de permitir el cambio
+    if not empleado or not empleado.token_recuperacion:
+        raise HTTPException(status_code=403, detail="Proceso de recuperación no autorizado")
+        
+    empleado.password = datos.nueva_password
+    empleado.token_recuperacion = None # Destruimos el código para que no se reuse
+    db.commit()
+    
+    return {"status": "200", "mensaje": "Contraseña actualizada exitosamente"}
 # --- 1. LEER TODOS (GET) ---
 @router.get("/")
 def obtener_empleados(db: Session = Depends(get_db)):

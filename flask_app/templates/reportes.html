@@ -204,6 +204,7 @@
             gap: 8px;
             justify-content: center;
         }
+
         .btn-back {
             background: #4A5568;
             color: white;
@@ -221,6 +222,7 @@
         .btn-back:hover {
             background: #2D3748;
         }
+
         .btn-dl {
             padding: 8px 12px;
             border-radius: 6px;
@@ -366,26 +368,28 @@
             <div class="report-card">
                 <i class="fas fa-clipboard-list report-icon"></i>
                 <div class="report-title">Reporte de Pedidos</div>
-                
-                <select id="filtro-pedidos" class="filter-select">
-                    <option value="todos">Todos los Estatus</option>
-                    <option value="Pendiente">Solo Pendientes</option>
-                    <option value="Completado">Solo Completados</option>
-                    <option value="Cancelado">Solo Cancelados</option>
+                <select id="filtro-estatus-pedidos" class="filter-select">
+                    <option value="todos">Todos los Pedidos</option>
+                    <option value="Pendiente">Pendientes</option>
+                    <option value="En Proceso">En Proceso</option>
+                    <option value="Enviado">Enviados</option>
+                    <option value="Entregado">Entregados</option>
+                    <option value="Cancelado">Cancelados</option>
                 </select>
-                
+
                 <div class="date-group" id="fechas-pedidos">
                     <input type="date" id="fecha-inicio-pedidos" class="date-input" title="Desde">
                     <input type="date" id="fecha-fin-pedidos" class="date-input" title="Hasta">
                 </div>
                 <div class="download-group">
-                    <button onclick="descargarReporte('pedidos', 'pdf')" class="btn-dl btn-pdf"><i
+                    <button onclick="descargarDinamico('pedidos', 'pdf')" class="btn-dl btn-pdf"><i
                             class="fas fa-file-pdf"></i> PDF</button>
-                    <button onclick="descargarReporte('pedidos', 'xlsx')" class="btn-dl btn-xls"><i
+                    <button onclick="descargarDinamico('pedidos', 'xlsx')" class="btn-dl btn-xls"><i
                             class="fas fa-file-excel"></i> Excel</button>
-                    <button onclick="descargarReporte('pedidos', 'docx')" class="btn-dl btn-doc"><i
+                    <button onclick="descargarDinamico('pedidos', 'docx')" class="btn-dl btn-doc"><i
                             class="fas fa-file-word"></i> Word</button>
                 </div>
+
             </div>
 
             <div class="report-card">
@@ -520,6 +524,19 @@
             // Redirige a Flask con el filtro en la URL
             window.location.href = `/descargar-reporte/${tipo}/${formato}?filtro=${filtro}`;
         }
+
+        function descargarDinamico(tipo, formato) {
+        let url = `/descargar-reporte/${tipo}/${formato}`;
+        
+        // Si el usuario está descargando un reporte de pedidos, atrapamos su filtro
+        if (tipo === 'pedidos') {
+            let filtroEstatus = document.getElementById('filtro-estatus-pedidos').value;
+            url += `?filtro=${encodeURIComponent(filtroEstatus)}`;
+        }
+        
+        // Redirigimos la ventana a esa URL para iniciar la descarga del archivo
+        window.location.href = url;
+    }
     </script>
 </body>
 

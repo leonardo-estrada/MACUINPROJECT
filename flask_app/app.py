@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, Response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, send_file, Response, jsonify, session, flash
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from functools import wraps
 import requests
 import os
 import io
@@ -8,31 +11,110 @@ app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
             static_folder=os.path.join(os.path.dirname(__file__), 'static'),
             static_url_path='/static')
+app.secret_key = 'macuin_secret_key_pro'
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Si no hay un usuario en la sesión, lo pateamos de vuelta al login
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Esta es la URL interna de tu API gracias a la red de Docker
 API_URL = "http://macuin-api:8000/v1"
 
 # RUTAS DE AUTENTICACIÓN Y RECUPERACIÓN
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+        
+        resp = requests.post(f"{API_URL}/empleados/login", json={
+            "correo": correo, 
+            "password": password
+        })
+        
+        if resp.status_code == 200:
+            user_data = resp.json().get('usuario')
+            # Guardamos datos en la sesión de Flask
+            session['user_id'] = user_data['id']
+            session['user_name'] = user_data['nombre']
+            session['user_role'] = user_data['rol']
+            return redirect(url_for('reportes'))
+        else:
+            flash("Credenciales inválidas o cuenta inactiva", "error")
+            
     return render_template('login.html')
 
-@app.route('/password-recovery')
-def passwd1():
+# --- RUTA DE LOGOUT ---
+@app.route('/logout')
+def logout():
+    session.clear() # Limpia toda la sesión
+    return redirect(url_for('login'))
+
+# --- FLUJO DE RECUPERACIÓN (3 PASOS) ---
+
+@app.route('/recuperar-paso1', methods=['GET', 'POST'])
+def pass1():
+    if request.method == 'POST':
+        correo = request.form.get('correo')
+        session['recovery_email'] = correo
+        
+        # Disparamos la generación del código en la API
+        requests.post(f"{API_URL}/empleados/recuperar/solicitar", json={"correo": correo})
+        
+        return redirect(url_for('pass2'))
     return render_template('Passowrd.html')
 
-@app.route('/password-verify')
-def passwd2():
+@app.route('/recuperar-paso2', methods=['GET', 'POST'])
+def pass2():
+    # Bloqueo de seguridad: Si no hay correo en sesión, lo regresamos al paso 1
+    if 'recovery_email' not in session:
+        return redirect(url_for('pass1'))
+        
+    if request.method == 'POST':
+        codigo = request.form.get('codigo') # Asegúrate que tu input en Passowrd2.html se llame "codigo"
+        correo = session.get('recovery_email')
+        
+        resp = requests.post(f"{API_URL}/empleados/recuperar/validar", json={"correo": correo, "token": codigo})
+        
+        if resp.status_code == 200:
+            session['recovery_verified'] = True # Damos luz verde para cambiar contraseña
+            return redirect(url_for('pass3'))
+        else:
+            flash("El código ingresado es incorrecto.", "error")
+            
     return render_template('Passowrd2.html')
 
-@app.route('/password-reset')
-def passwd3():
-    return render_template('Passowrd3.html')
-
-# RUTAS DEL PANEL ADMINISTRATIVO
+@app.route('/recuperar-paso3', methods=['GET', 'POST'])
+def pass3():
+    # Bloqueo de seguridad: Si no pasó por la validación del código, lo sacamos
+    if not session.get('recovery_verified'):
+        return redirect(url_for('pass1'))
+        
+    if request.method == 'POST':
+        nueva_p = request.form.get('password')
+        correo = session.get('recovery_email')
+        
+        resp = requests.post(f"{API_URL}/empleados/recuperar/reset", json={
+            "correo": correo,
+            "nueva_password": nueva_p
+        })
+        
+        if resp.status_code == 200:
+            # Limpiamos las variables temporales de sesión
+            session.pop('recovery_email', None)
+            session.pop('recovery_verified', None)
+            flash("Contraseña restablecida con éxito. Ya puedes iniciar sesión.", "success")
+            return redirect(url_for('login'))
+            
+    return render_template('Passowrd3.html')# RUTAS DEL PANEL ADMINISTRATIVO
 @app.route('/')
 @app.route('/reportes')
+@login_required
 def reportes():
     try:
         # Función auxiliar para no chocar si FastAPI devuelve Lista o Diccionario
@@ -84,6 +166,7 @@ def reportes():
                            data_ped=list(estatus_grafica.values()))
 
 @app.route('/pedidos')
+@login_required
 def pedidos():
     try:
         # Atrapamos el filtro desde la URL
@@ -92,7 +175,33 @@ def pedidos():
         # Consumimos la API de Pedidos 
         resp_pedidos = requests.get(f"{API_URL}/pedidos/")
         todos_pedidos = resp_pedidos.json().get("data", []) if resp_pedidos.status_code == 200 else []
-        
+
+        zona_local = ZoneInfo("America/Mexico_City")
+
+        for p in todos_pedidos:
+            fecha_raw = p.get('fecha')
+            if fecha_raw:
+                try:
+                    # 1. Parseamos la fecha ISO del servidor (ej. 2026-04-12T17:28:35+00:00)
+                    fecha_utc = datetime.fromisoformat(fecha_raw.replace('Z', '+00:00'))
+                    
+                    # 2. Convertimos el tiempo UTC al tiempo local real
+                    fecha_local = fecha_utc.astimezone(zona_local)
+                    
+                    # 3. Formateamos la salida visual
+                    p['fecha_formateada'] = fecha_local.strftime("%d/%m/%Y")
+                    
+                    # Formateamos la hora a 12h y reemplazamos AM/PM por a.m./p.m.
+                    hora_str = fecha_local.strftime("%I:%M %p").lower()
+                    p['hora_formateada'] = hora_str.replace("am", "a.m.").replace("pm", "p.m.")
+                    
+                except Exception as e:
+                    print(f"Error parseando fecha: {e}")
+                    p['fecha_formateada'] = "Error de formato"
+                    p['hora_formateada'] = ""
+            else:
+                p['fecha_formateada'] = "N/A"
+                p['hora_formateada'] = ""
         # Necesitamos los clientes para vincular nombres en la tabla
         resp_clientes = requests.get(f"{API_URL}/clientes/")
         lista_clientes = resp_clientes.json().get("data", []) if resp_clientes.status_code == 200 else []
@@ -154,6 +263,7 @@ def stock_salida():
 # MÓDULO 1: INVENTARIO
 
 @app.route('/inventario')
+@login_required
 def inventario():
     try:
         respuesta = requests.get(f"{API_URL}/inventario/")
@@ -200,6 +310,7 @@ def eliminar_autoparte(id):
 # MÓDULO 2: EMPLEADOS
 
 @app.route('/empleados')
+@login_required
 def empleados():
     try:
         respuesta = requests.get(f"{API_URL}/empleados/")
@@ -268,21 +379,21 @@ def reactivar_empleado(id):
 
 @app.route('/descargar-reporte/<tipo>/<formato>')
 def descargar_reporte(tipo, formato):
-    # 1. Atrapamos los parámetros (si no vienen, quedan vacíos)
     filtro = request.args.get('filtro', 'todos')
     fecha_inicio = request.args.get('fecha_inicio', '')
     fecha_fin = request.args.get('fecha_fin', '')
     
-    # 2. Construimos la URL base
-    url_api = f"{API_URL}/reportes/{tipo}/{formato}?filtro={filtro}"
+    url_api = f"{API_URL}/reportes/{tipo}/{formato}"
     
-    # 3. Le pegamos las fechas a la URL solo si el usuario las seleccionó
+    # Empaquetamos los parámetros de forma segura
+    parametros = {"filtro": filtro}
     if fecha_inicio:
-        url_api += f"&fecha_inicio={fecha_inicio}"
+        parametros["fecha_inicio"] = fecha_inicio
     if fecha_fin:
-        url_api += f"&fecha_fin={fecha_fin}"
+        parametros["fecha_fin"] = fecha_fin
     
-    resp = requests.get(url_api)
+    # requests codifica los espacios automáticamente (ej. "En Proceso" -> "En%20Proceso")
+    resp = requests.get(url_api, params=parametros)
     
     if resp.status_code == 200:
         return Response(
@@ -293,34 +404,6 @@ def descargar_reporte(tipo, formato):
             }
         )
     return "Error al generar reporte", 400
-
-@app.route('/ventas')
-def ventas():
-    try:
-        # 1. Obtenemos datos base
-        resp_pedidos = requests.get(f"{API_URL}/pedidos/")
-        pedidos = resp_pedidos.json().get("data", [])
-        
-        resp_inv = requests.get(f"{API_URL}/inventario/")
-        inventario = {p['id']: p for p in resp_inv.json().get("data", [])}
-
-        # 2. Lógica de Ventas: Solo pedidos que ya generaron ingreso
-        ventas_reales = [p for p in pedidos if p.get('estatus') in ['Enviado', 'Entregado']]
-        
-        ingreso_total = 0
-        por_categoria = {}
-
-        for v in ventas_reales:
-            # Aquí deberíamos consultar el detalle de cada pedido para sumar precios
-            # Por ahora, simulamos el cálculo basado en el total del pedido
-            ingreso_total += v.get('total_venta', 0) 
-
-        return render_template('ventas.html', 
-                               ventas=ventas_reales, 
-                               ingreso=ingreso_total,
-                               top_categorias=por_categoria)
-    except Exception as e:
-        return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

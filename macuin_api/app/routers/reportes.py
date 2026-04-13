@@ -2,9 +2,10 @@ import io
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from datetime import datetime, time as dt_time
+from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
 from app.data.db import get_db
-from datetime import datetime
 
 from app.data.autoparte import Autoparte
 from app.data.usuario_interno import UsuarioInterno
@@ -27,16 +28,14 @@ from docx.shared import Pt, RGBColor
 
 router = APIRouter(prefix="/v1/reportes", tags=['Módulo de Reportes'])
 
-# --- MAGIA DE FILTRADO AQUÍ ---
 def extraer_datos_estructurados(tipo: str, db: Session, filtro: str, fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None):
     if tipo == "inventario":
-            headers = ["CÓDIGO", "NOMBRE", "MARCA", "CATEGORÍA", "PRECIO", "STOCK"] # Agregamos PRECIO
-            query = db.query(Autoparte)
-            if filtro != "todos":
-                query = query.filter(Autoparte.categoria == filtro)
-            # Formateamos el precio con símbolo de dólar y dos decimales
-            filas = [[p.codigo, p.nombre, p.marca, p.categoria, f"${p.precio:.2f}", str(p.stock)] for p in query.all()]
-            return headers, filas
+        headers = ["CÓDIGO", "NOMBRE", "MARCA", "CATEGORÍA", "PRECIO", "STOCK"]
+        query = db.query(Autoparte)
+        if filtro and filtro != "todos":
+            query = query.filter(Autoparte.categoria == filtro) 
+        filas = [[p.codigo, p.nombre, p.marca, p.categoria, f"${p.precio:.2f}" if p.precio else "$0.00", str(p.stock)] for p in query.all()]
+        return headers, filas
 
     elif tipo == "empleados":
         headers = ["NOMBRE", "CORREO", "DEPARTAMENTO", "ESTATUS"]
@@ -54,22 +53,41 @@ def extraer_datos_estructurados(tipo: str, db: Session, filtro: str, fecha_inici
         return headers, filas
 
     elif tipo == "pedidos":
-        headers = ["FOLIO", "ID CLIENTE", "FECHA", "TOTAL", "ESTATUS"] # Agregamos TOTAL
+        headers = ["FOLIO", "ID CLIENTE", "FECHA", "TOTAL", "ESTATUS"]
+        tz_local = ZoneInfo("America/Mexico_City")
         query = db.query(Pedido)
         
-        if filtro != "todos":
+        if filtro and filtro != "todos":
             query = query.filter(Pedido.estatus == filtro)
             
         if fecha_inicio:
-            query = query.filter(Pedido.fecha >= fecha_inicio)
+            # Convertimos "2026-04-12" a las 00:00:00 de México
+            dt_inicio = datetime.combine(
+                datetime.strptime(fecha_inicio, "%Y-%m-%d").date(), 
+                dt_time.min
+            ).replace(tzinfo=tz_local)
+            query = query.filter(Pedido.fecha >= dt_inicio)
+
         if fecha_fin:
-            query = query.filter(Pedido.fecha <= fecha_fin)
+            # Convertimos "2026-04-12" a las 23:59:59 de México
+            dt_fin = datetime.combine(
+                datetime.strptime(fecha_fin, "%Y-%m-%d").date(), 
+                dt_time.max
+            ).replace(tzinfo=tz_local)
+            query = query.filter(Pedido.fecha <= dt_fin)
             
-        filas = [[str(p.id), str(p.id_cliente), p.fecha.strftime('%Y-%m-%d') if p.fecha else "N/A", f"${p.total:.2f}", p.estatus] for p in query.all()]
+        filas = [
+            [
+                str(p.id), 
+                str(p.id_cliente), 
+                p.fecha.astimezone(tz_local).strftime('%d/%m/%Y') if p.fecha else "N/A", 
+                f"${p.total:.2f}" if p.total else "$0.00", 
+                p.estatus
+            ] for p in query.all()
+        ]
         return headers, filas
     return None, None
 
-# Agregamos "filtro" como parámetro opcional (por defecto "todos")
 @router.get("/{tipo}/{formato}")
 def generar_reporte_profesional(tipo: str, formato: str, filtro: str = "todos", fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None, db: Session = Depends(get_db)):
     
@@ -78,30 +96,24 @@ def generar_reporte_profesional(tipo: str, formato: str, filtro: str = "todos", 
     if headers is None:
         raise HTTPException(status_code=404, detail="Reporte no válido.")
     if not filas:
-        filas = [["No hay datos para estos filtros", "", "", "", ""][:len(headers)]]
+        filas = [["No hay datos para estos filtros", "", "", "", "", ""][:len(headers)]]
 
     buffer = io.BytesIO()
 
-    # --- 1. GENERADOR PDF (DISEÑO CORPORATIVO CORREGIDO) ---
+    # --- 1. GENERADOR PDF ---
     if formato == "pdf":
-        # Usamos landscape para acostar la hoja y reducimos los márgenes
         doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
         elementos = []
         estilos = getSampleStyleSheet()
         
-        # Título
         titulo = Paragraph(f"<b>REPORTE OFICIAL MACUIN: {tipo.upper()}</b>", estilos['Title'])
         elementos.append(titulo)
         elementos.append(Spacer(1, 20))
         
-        # Cálculo Dinámico de Columnas (720 puntos aprox en hoja horizontal)
-        datos_tabla = [headers] + filas
         ancho_disponible = 720 
         ancho_columna = ancho_disponible / len(headers)
         
-        tabla = Table(datos_tabla, colWidths=[ancho_columna]*len(headers))
-        
-        # Estilos de la tabla (Letra tamaño 9 y márgenes internos)
+        tabla = Table([headers] + filas, colWidths=[ancho_columna]*len(headers))
         tabla.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#6B0F2A")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -123,8 +135,8 @@ def generar_reporte_profesional(tipo: str, formato: str, filtro: str = "todos", 
         wb = Workbook()
         ws = wb.active
         ws.title = f"Reporte {tipo}"
-        
         ws.append(headers)
+        
         guinda_fill = PatternFill(start_color="6B0F2A", end_color="6B0F2A", fill_type="solid")
         white_font = Font(color="FFFFFF", bold=True)
         
@@ -133,7 +145,7 @@ def generar_reporte_profesional(tipo: str, formato: str, filtro: str = "todos", 
             celda.fill = guinda_fill
             celda.font = white_font
             celda.alignment = Alignment(horizontal="center")
-            ws.column_dimensions[celda.column_letter].width = 25 # Hicimos las celdas de Excel más anchas también
+            ws.column_dimensions[celda.column_letter].width = 20
             
         for fila in filas:
             ws.append(fila)

@@ -140,7 +140,14 @@
                                 <span class="client-email">{{ cli.get('correo', '-') }}</span>
                             </div>
                         </td>
-                        <td>{{ pedido.fecha if pedido.fecha else 'N/A' }}</td>
+                        <td>
+                            <div class="order-date">
+                                <span class="date">{{ pedido.fecha_formateada }}</span>
+                                <span class="time"
+                                    style="display: block; font-size: 0.85rem; color: #666; margin-top: 2px;">{{
+                                    pedido.hora_formateada }}</span>
+                            </div>
+                        </td>
                         <td class="order-total">${{ "{:,.2f}".format(pedido.get('total', 0.0)) }}</td>
                         <td>
                             <form action="{{ url_for('cambiar_estatus_pedido', id=pedido.id) }}" method="POST">

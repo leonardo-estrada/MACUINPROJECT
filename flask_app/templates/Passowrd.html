@@ -14,7 +14,6 @@
     <div class="auth-container">
         <div class="logo-section">
             <img src="{{ url_for('static', filename='IMG/logo2.png') }}" alt="Logo MACUIN" class="logo-img">
-
             <p>Sistema de Gestión de Autopartes</p>
         </div>
         <div class="auth-card">
@@ -36,25 +35,22 @@
             </div>
             <div class="recovery-icon"><i class="fas fa-key"></i></div>
             <h2 class="auth-title-small">¿Olvidaste tu contraseña?</h2>
-            <p class="auth-description">Ingresa tu correo registrado y te enviaremos un enlace para restablecerla.</p>
-            <form class="auth-form">
-                <div class="form-group">
-                    <label for="email">Correo electrónico</label>
-                    <div class="input-group">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="email" placeholder="Correo" required>
-                    </div>
+            <p class="auth-description">Ingresa tu correo registrado y te enviaremos un código de verificación.</p>
+            
+            <form action="{{ url_for('pass1') }}" method="POST" class="login-form">
+                <div class="input-group">
+                    <label for="correo" style="display:block; text-align:left; margin-bottom:5px; font-weight:500;">Correo Electrónico</label>
+                    <input type="email" id="correo" name="correo" placeholder="ejemplo@macuin.com" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 20px;">
                 </div>
-                <a href="{{ url_for('passwd2') }}" class="btn btn-primary btn-full">
-                    <i class="fas fa-paper-plane"></i>
-                    Enviar enlace de recuperación
-                </a>
+
+                <button type="submit" class="btn btn-primary btn-full" style="width: 100%; padding: 12px; background-color: #6B0F2A; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-paper-plane"></i> Enviar Código
+                </button>
             </form>
-            <a href="{{ url_for('login') }}" class="back-link"><i class="fas fa-arrow-left"></i> Volver al inicio de
-                sesión</a>
+
+            <a href="{{ url_for('login') }}" class="back-link" style="display: block; margin-top: 20px;"><i class="fas fa-arrow-left"></i> Volver al inicio de sesión</a>
         </div>
-        <p class="support-text">¿Necesitas ayuda? Contacta a soporte en <a
-                href="mailto:soporte@macuin.com">soporte@macuin.com</a></p>
+        <p class="support-text">¿Necesitas ayuda? Contacta a soporte en <a href="mailto:soporte@macuin.com">soporte@macuin.com</a></p>
     </div>
 </body>
 
