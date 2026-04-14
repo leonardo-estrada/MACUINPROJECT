@@ -10,7 +10,7 @@ class CatalogoController extends Controller
 {
     public function index(Request $request)
     {
-        $apiUrl = env('API_URL') . '/inventario/';
+        $apiUrl = config('services.macuin_api.url') . '/inventario/';
         $categoriaFiltro = $request->query('categoria'); // Por si luego quieres filtrar por URL
 
         try {

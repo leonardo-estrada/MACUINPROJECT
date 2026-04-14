@@ -29,7 +29,7 @@ services:
     ports:
       - "8080:8000" # Entraremos a la API por el puerto 8080 en el navegador
     volumes:
-      - ./macuin_api:/app
+      - ./macuin_api:/code
     environment:
       # Apuntamos la conexión al contenedor de PostgreSQL creado arriba
       - DATABASE_URL=postgresql://Admin:PLFO205@postgres_db:5432/Macuin

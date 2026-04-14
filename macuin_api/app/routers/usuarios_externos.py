@@ -4,7 +4,7 @@ from app.data.db import get_db
 
 # Importamos nuestro modelo físico y el validador
 from app.data.usuario_externo import UsuarioExterno as UsuarioDB
-from app.models.usuario_externo import CrearUsuarioExterno, ActualizarUsuarioExterno
+from app.models.usuario_externo import CrearUsuarioExterno, ActualizarUsuarioExterno, ResetPasswordUsuarioExterno
 
 router = APIRouter(
     prefix="/v1/clientes",
@@ -66,3 +66,16 @@ def eliminar_cliente(id_cliente: int, db: Session = Depends(get_db)):
     db.delete(cliente_eliminar)
     db.commit()
     return {"mensaje": "Cliente eliminado correctamente", "status": "200"}
+
+@router.post("/recuperar/reset")
+def reset_password_cliente(datos: ResetPasswordUsuarioExterno, db: Session = Depends(get_db)):
+    cliente = db.query(UsuarioDB).filter(UsuarioDB.correo == datos.correo).first()
+
+    if not cliente:
+        raise HTTPException(status_code=404, detail="No existe un cliente con ese correo")
+
+    cliente.password = datos.nueva_password
+    db.commit()
+    db.refresh(cliente)
+
+    return {"mensaje": "Contrasena actualizada correctamente", "status": "200"}

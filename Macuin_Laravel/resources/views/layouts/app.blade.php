@@ -3,50 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MACUIN - Sistema de Gestión de Autopartes</title>
+    <title>MACUIN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .bg-macuin { background-color: #8B0000; }
-        .text-macuin { color: #8B0000; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0dbdb;
+            color: #333;
+        }
     </style>
+    @stack('head')
 </head>
-<body class="bg-gray-50">
-
-    <nav class="bg-macuin text-white py-3 px-6 flex justify-between items-center shadow-md">
-        <a href="{{ route('catalogo') }}" class="flex items-center gap-4 hover:opacity-80 transition">
-            <img src="{{ asset('img/logo.png') }}" alt="MACUIN Logo" class="h-12 bg-white rounded-full p-1">
-            <div>
-                <h1 class="text-xl font-bold tracking-widest">MACUIN</h1>
-                <p class="text-xs italic text-gray-200">Catálogo de Autopartes</p>
+<body>
+    <header class="bg-[#6B0F2A] text-white">
+        <div class="mx-auto flex h-[60px] max-w-[1400px] items-center justify-between px-4 md:px-6">
+            <div class="flex items-center gap-4">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo MACUIN" class="h-10 w-auto rounded">
+                <span class="text-sm font-medium">Panel Comercial</span>
             </div>
-        </a>
-        
-        <div class="flex-1 max-w-2xl mx-8 hidden md:block">
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
-                </span>
-                <input type="text" class="w-full bg-white/10 border border-white/30 rounded-md py-2 pl-10 pr-4 text-white placeholder-gray-300 focus:outline-none focus:bg-white focus:text-gray-900" placeholder="Buscar autopartes...">
+
+            <nav class="hidden items-center gap-1 md:flex">
+                <a href="{{ route('catalogo') }}" class="rounded-lg px-4 py-2 text-[13px] text-white/80 transition hover:bg-white/10 hover:text-white {{ request()->routeIs('catalogo') ? 'bg-white/10 text-white' : '' }}">
+                    <i class="fas fa-box mr-2"></i>Catalogo
+                </a>
+                <a href="{{ route('carrito.index') }}" class="rounded-lg px-4 py-2 text-[13px] text-white/80 transition hover:bg-white/10 hover:text-white {{ request()->routeIs('carrito.*') ? 'bg-white/10 text-white' : '' }}">
+                    <i class="fas fa-shopping-cart mr-2"></i>Pedido
+                </a>
+                <a href="{{ route('historial') }}" class="rounded-lg px-4 py-2 text-[13px] text-white/80 transition hover:bg-white/10 hover:text-white {{ request()->routeIs('historial') ? 'bg-white/10 text-white' : '' }}">
+                    <i class="fas fa-clock-rotate-left mr-2"></i>Historial
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                @if(session('cliente_id'))
+                    <div class="hidden text-right md:block">
+                        <div class="text-[11px] text-white/70">Cliente activo</div>
+                        <div class="text-sm font-semibold">{{ session('cliente_nombre') }}</div>
+                    </div>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="rounded-lg p-2 text-white transition hover:bg-white/10">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="rounded-lg px-4 py-2 text-[13px] text-white/90 transition hover:bg-white/10">
+                        <i class="fas fa-user mr-2"></i>Ingresar
+                    </a>
+                @endif
             </div>
         </div>
+    </header>
 
-        <div class="flex items-center gap-6">
-            <a href="{{ route('login') }}" class="hover:text-gray-300 transition">
-                <i class="fa-regular fa-user mr-1"></i> Usuario
-            </a>
-            <a href="{{ route('checkout') }}" class="hover:text-gray-300 transition">
-                <i class="fa-solid fa-cart-shopping mr-1"></i> Mi Pedido
-            </a>
-            <a href="#" class="hover:text-gray-300 transition">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </a>
-        </div>
-    </nav>
-
-    <main class="container mx-auto px-4 py-8">
+    <main class="mx-auto max-w-[1400px] px-4 py-8 md:px-6">
         @yield('content')
     </main>
 
+    @stack('scripts')
 </body>
 </html>

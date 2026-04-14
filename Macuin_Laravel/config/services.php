@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'macuin_api' => [
+        'url' => env('API_URL', 'http://macuin-api:8000/v1'),
+    ],
+
 ];

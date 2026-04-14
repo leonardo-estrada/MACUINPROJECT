@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 from app.data.db import get_db
 
 from app.data.autoparte import Autoparte as AutoparteDB
@@ -72,3 +73,20 @@ def eliminar_autoparte(id_autoparte: int, db: Session = Depends(get_db)):
     db.delete(pieza_eliminar)
     db.commit()
     return {"mensaje": "Autoparte eliminada del catálogo", "status": "200"}
+
+@router.post("/bulk", status_code=status.HTTP_201_CREATED)
+def crear_multiples(piezas: List[CrearAutoparte], db: Session = Depends(get_db)):
+    try:
+        for p in piezas:
+            # Verificación rápida para no chocar con códigos duplicados
+            existe = db.query(AutoparteDB).filter(AutoparteDB.codigo == p.codigo).first()
+            if not existe:
+                # Usamos model_dump() que es el estándar de Pydantic V2
+                nueva_pieza = AutoparteDB(**p.model_dump())
+                db.add(nueva_pieza)
+        
+        db.commit()
+        return {"mensaje": f"Se procesaron {len(piezas)} piezas correctamente.", "status": "201"}
+    except Exception as e:
+        db.rollback() # Si algo falla, deshacemos los cambios para no corromper la BD
+        raise HTTPException(status_code=500, detail=f"Error al insertar bulk: {str(e)}")

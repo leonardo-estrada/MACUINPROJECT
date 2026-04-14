@@ -9,3 +9,7 @@ class CrearUsuarioExterno(BaseModel):
 class ActualizarUsuarioExterno(BaseModel):
     nombre: str = Field(None, min_length=3, max_length=100)
     telefono: str = Field(None, max_length=20)
+
+class ResetPasswordUsuarioExterno(BaseModel):
+    correo: str = Field(..., min_length=5, max_length=150, example="juan@correo.com")
+    nueva_password: str = Field(..., min_length=6, description="Contrasena minima de 6 caracteres")

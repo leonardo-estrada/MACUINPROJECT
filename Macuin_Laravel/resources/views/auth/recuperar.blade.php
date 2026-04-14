@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - MACUIN</title>
+    <title>Recuperar Contrasena - MACUIN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -17,32 +17,24 @@
     <div class="mx-auto flex min-h-screen max-w-5xl items-center justify-center px-4 py-8">
         <div class="grid w-full items-center gap-8 md:grid-cols-[0.9fr_1.1fr]">
             <div class="text-center">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo MACUIN" class="mx-auto h-24 w-auto">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo MACUIN" class="mx-auto h-28 w-auto">
                 <p class="mt-4 text-sm text-[#666]">Sistema de Gestion de Autopartes</p>
             </div>
 
             <div class="rounded-[10px] bg-white p-8 shadow-lg">
                 <div class="mb-6 text-center">
-                    <h2 class="text-2xl font-semibold text-[#333]">Registro de Cliente</h2>
-                    <p class="mt-1 text-sm text-[#666]">Alta de usuarios externos</p>
+                    <h2 class="text-2xl font-semibold text-[#333]">Recuperar Contrasena</h2>
+                    <p class="mt-1 text-sm text-[#666]">Restablece el acceso de tu cuenta de cliente</p>
                 </div>
 
-                <form action="{{ route('registro') }}" method="POST" class="space-y-4">
+                <form action="{{ route('password.reset') }}" method="POST" class="space-y-4">
                     @csrf
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-[#4A5568]">Nombre completo</label>
-                        <input type="text" name="nombre" value="{{ old('nombre') }}" class="w-full rounded-[6px] border border-[#CBD5E0] px-4 py-3 text-sm outline-none focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10" placeholder="Juan Perez" required>
-                    </div>
                     <div>
                         <label class="mb-2 block text-sm font-medium text-[#4A5568]">Correo electronico</label>
                         <input type="email" name="correo" value="{{ old('correo') }}" class="w-full rounded-[6px] border border-[#CBD5E0] px-4 py-3 text-sm outline-none focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10" placeholder="correo@ejemplo.com" required>
                     </div>
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-[#4A5568]">Telefono</label>
-                        <input type="text" name="telefono" value="{{ old('telefono') }}" class="w-full rounded-[6px] border border-[#CBD5E0] px-4 py-3 text-sm outline-none focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10" placeholder="4421234567">
-                    </div>
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-[#4A5568]">Contrasena</label>
+                        <label class="mb-2 block text-sm font-medium text-[#4A5568]">Nueva contrasena</label>
                         <input type="password" name="password" class="w-full rounded-[6px] border border-[#CBD5E0] px-4 py-3 text-sm outline-none focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10" placeholder="••••••••" required>
                     </div>
                     <div>
@@ -57,12 +49,12 @@
                     @endif
 
                     <button type="submit" class="w-full rounded-[6px] bg-[#6B0F2A] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#551022]">
-                        Registrarse
+                        Restablecer contrasena
                     </button>
                 </form>
 
                 <div class="mt-5 text-center text-sm">
-                    <a href="{{ route('login') }}" class="text-[#6B0F2A] hover:underline">Ya tengo cuenta</a>
+                    <a href="{{ route('login') }}" class="text-[#6B0F2A] hover:underline">Volver al login</a>
                 </div>
             </div>
         </div>

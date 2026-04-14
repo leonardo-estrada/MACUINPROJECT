@@ -16,5 +16,5 @@ COPY ./app /code/app
 # Exponemos el puerto interno de FastAPI
 EXPOSE 8000
 
-# Comando maestro para levantar el servidor de Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Comando maestro para levantar el servidor de Uvicorn en modo desarrollo
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

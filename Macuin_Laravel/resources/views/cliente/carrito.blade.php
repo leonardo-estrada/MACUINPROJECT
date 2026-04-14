@@ -1,117 +1,132 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito de Compras - MACUIN</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --primary: #6B0F2A; --bg-light: #F7FAFC; --text-dark: #2D3748; --border: #E2E8F0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); margin: 0; padding: 0; }
-        .navbar { background: var(--primary); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .navbar-brand a { color: white; text-decoration: none; font-size: 1.5rem; font-weight: 700; }
-        
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        
-        .cart-card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .cart-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .cart-table th { text-align: left; padding: 15px; border-bottom: 2px solid var(--border); color: #718096; text-transform: uppercase; font-size: 0.85rem; }
-        .cart-table td { padding: 15px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-        
-        .item-name { font-weight: 600; color: var(--text-dark); }
-        .item-brand { font-size: 0.85rem; color: #718096; }
-        
-        .summary-section { margin-top: 30px; display: flex; justify-content: flex-end; }
-        .summary-box { background: #F8FAFC; padding: 25px; border-radius: 8px; border: 1px solid var(--border); width: 300px; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; }
-        .total-row { font-size: 1.4rem; font-weight: 700; color: var(--primary); border-top: 2px solid var(--border); padding-top: 15px; }
-        
-        .btn { padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; border: none; width: 100%; box-sizing: border-box;}
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: #500b1f; }
-        .btn-outline { background-color: white; border: 1px solid #CBD5E0; color: #4A5568; margin-bottom: 10px;}
-        .btn-outline:hover { background-color: #EDF2F7; }
-        
-        .empty-cart { text-align: center; padding: 50px 20px; color: #718096; }
-        .empty-cart i { font-size: 4rem; color: #CBD5E0; margin-bottom: 20px; }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
 
-    <nav class="navbar">
-        <div class="navbar-brand">
-            <a href="{{ route('catalogo') }}"><i class="fas fa-cogs"></i> MACUIN</a>
-        </div>
-    </nav>
+@php
+    $articulos = collect($carrito)->sum('cantidad');
+@endphp
 
-    <div class="container">
-        <h2><i class="fas fa-shopping-cart"></i> Tu Carrito</h2>
+@section('content')
+<div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-semibold text-[#333]">Gestion de Pedido</h1>
+        <p class="mt-1 text-sm text-[#666]">Ajusta cantidades y confirma la orden antes de enviarla.</p>
+    </div>
+    <a href="{{ route('catalogo') }}" class="rounded-[6px] bg-[#4A5568] px-4 py-2 text-sm text-white transition hover:bg-[#2D3748]">
+        <i class="fas fa-arrow-left mr-2"></i>Volver al catalogo
+    </a>
+</div>
 
-        @if(session('error_api'))
-            <div style="background: #FED7D7; color: #9B2C2C; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: 600;">
-                <i class="fas fa-exclamation-triangle"></i> {{ session('error_api') }}
+@if(session('error_api'))
+    <div class="mb-5 rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error_api') }}
+    </div>
+@endif
+
+@if(session('success_cart'))
+    <div class="mb-5 rounded-[10px] border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+        <i class="fas fa-check-circle mr-2"></i>{{ session('success_cart') }}
+    </div>
+@endif
+
+<div class="mb-6 grid gap-4 md:grid-cols-3">
+    <div class="rounded-[10px] border-l-4 border-[#6B0F2A] bg-white p-4 shadow-sm">
+        <div class="text-[12px] font-semibold uppercase text-[#666]">Lineas</div>
+        <div class="mt-1 text-2xl font-bold text-[#333]">{{ count($carrito) }}</div>
+    </div>
+    <div class="rounded-[10px] border-l-4 border-[#3182CE] bg-white p-4 shadow-sm">
+        <div class="text-[12px] font-semibold uppercase text-[#666]">Articulos</div>
+        <div class="mt-1 text-2xl font-bold text-[#333]">{{ $articulos }}</div>
+    </div>
+    <div class="rounded-[10px] border-l-4 border-[#38A169] bg-white p-4 shadow-sm">
+        <div class="text-[12px] font-semibold uppercase text-[#666]">Total</div>
+        <div class="mt-1 text-2xl font-bold text-[#333]">${{ number_format($total, 2) }}</div>
+    </div>
+</div>
+
+<div class="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+    <section class="rounded-[10px] bg-white p-5 shadow-sm">
+        @if(count($carrito) > 0)
+            <div class="space-y-4">
+                @foreach($carrito as $item)
+                    <article class="rounded-[10px] border border-[#EDF2F7] bg-white p-5">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <div class="text-[12px] font-semibold uppercase text-[#666]">{{ $item['marca'] }}</div>
+                                <h3 class="mt-1 text-lg font-semibold text-[#333]">{{ $item['nombre'] }}</h3>
+                                <div class="mt-2 text-sm text-[#666]">Precio unitario: <span class="font-semibold text-[#333]">${{ number_format($item['precio'], 2) }}</span></div>
+                            </div>
+
+                            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+                                <form action="{{ route('carrito.actualizar') }}" method="POST" class="flex items-center gap-3">
+                                    @csrf
+                                    <input type="hidden" name="id_autoparte" value="{{ $item['id'] }}">
+                                    <div class="inline-flex items-center rounded-[8px] border border-[#E2E8F0] bg-white px-2 py-2">
+                                        <button type="button" class="qty-adjust h-8 w-8 rounded text-[#4A5568] hover:bg-[#EDF2F7]" data-action="decrease">-</button>
+                                        <input type="number" name="cantidad" min="1" value="{{ $item['cantidad'] }}" class="qty-field w-10 border-0 bg-transparent text-center text-sm font-semibold outline-none">
+                                        <button type="button" class="qty-adjust h-8 w-8 rounded text-[#4A5568] hover:bg-[#EDF2F7]" data-action="increase">+</button>
+                                    </div>
+                                    <button type="submit" class="rounded-[8px] bg-[#6B0F2A] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#551022]">Actualizar</button>
+                                </form>
+
+                                <form action="{{ route('carrito.eliminar', $item['id']) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="rounded-[8px] border border-red-200 bg-white px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center justify-between rounded-[8px] bg-[#f8fafc] px-4 py-3 text-sm text-[#666]">
+                            <span>{{ $item['cantidad'] }} unidad(es) seleccionadas</span>
+                            <span class="text-lg font-bold text-[#6B0F2A]">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</span>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @else
+            <div class="rounded-[10px] border border-dashed border-[#CBD5E0] bg-[#f8fafc] px-6 py-16 text-center text-[#666]">
+                <i class="fas fa-shopping-basket text-5xl text-[#CBD5E0]"></i>
+                <p class="mt-4 text-lg font-semibold">Tu carrito esta vacio.</p>
             </div>
         @endif
+    </section>
 
-        <div class="cart-card">
-            @if(count($carrito) > 0)
-                <table class="cart-table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Precio Unitario</th>
-                            <th>Cantidad</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($carrito as $item)
-                        <tr>
-                            <td>
-                                <div class="item-name">{{ $item['nombre'] }}</div>
-                                <div class="item-brand">{{ $item['marca'] }}</div>
-                            </td>
-                            <td>${{ number_format($item['precio'], 2) }}</td>
-                            <td>{{ $item['cantidad'] }}</td>
-                            <td style="font-weight: 600;">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+    <aside class="space-y-4">
+        <div class="rounded-[10px] bg-white p-5 shadow-sm">
+            <div class="mb-4 border-b border-[#EDF2F7] pb-3 text-base font-semibold text-[#2D3748]">Resumen de compra</div>
+            <div class="mb-3 flex items-center justify-between text-sm text-[#666]">
+                <span>Subtotal</span>
+                <span class="font-semibold text-[#333]">${{ number_format($total, 2) }}</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-[#EDF2F7] pt-3 text-lg font-bold text-[#6B0F2A]">
+                <span>Total</span>
+                <span>${{ number_format($total, 2) }}</span>
+            </div>
 
-                <div class="summary-section">
-                    <div class="summary-box">
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <span>${{ number_format($total, 2) }}</span>
-                        </div>
-                        <div class="summary-row total-row">
-                            <span>Total</span>
-                            <span>${{ number_format($total, 2) }}</span>
-                        </div>
-                        
-                        <form action="{{ route('carrito.checkout') }}" method="POST" style="margin-top: 20px;">
-                            @csrf
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-credit-card"></i> Pagar y Finalizar</button>
-                        </form>
-                        
-                        <form action="{{ route('carrito.vaciar') }}" method="POST" style="margin-top: 10px;">
-                            @csrf
-                            <button type="submit" class="btn btn-outline"><i class="fas fa-trash"></i> Vaciar Carrito</button>
-                        </form>
-                    </div>
-                </div>
-            @else
-                <div class="empty-cart">
-                    <i class="fas fa-shopping-basket"></i>
-                    <h3>Tu carrito está vacío</h3>
-                    <p>Parece que aún no has agregado ninguna autoparte.</p>
-                    <a href="{{ route('catalogo') }}" class="btn btn-primary" style="width: auto; margin-top: 20px;">Volver al Catálogo</a>
-                </div>
-            @endif
+            <form action="{{ route('carrito.checkout') }}" method="POST" class="mt-5">
+                @csrf
+                <button type="submit" class="w-full rounded-[8px] bg-[#6B0F2A] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#551022]">
+                    <i class="fas fa-credit-card mr-2"></i>Pagar y finalizar
+                </button>
+            </form>
+
+            <form action="{{ route('carrito.vaciar') }}" method="POST" class="mt-3">
+                @csrf
+                <button type="submit" class="w-full rounded-[8px] border border-[#CBD5E0] bg-white px-5 py-3 text-sm font-medium text-[#4A5568] transition hover:bg-[#EDF2F7]">
+                    <i class="fas fa-trash mr-2"></i>Vaciar carrito
+                </button>
+            </form>
         </div>
-    </div>
+    </aside>
+</div>
+@endsection
 
-</body>
-</html>
+@push('scripts')
+<script>
+    document.querySelectorAll('.qty-adjust').forEach((button) => {
+        button.addEventListener('click', () => {
+            const input = button.parentElement.querySelector('.qty-field');
+            const current = Number(input.value || 1);
+            input.value = button.dataset.action === 'increase' ? current + 1 : Math.max(1, current - 1);
+        });
+    });
+</script>
+@endpush
